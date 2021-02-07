@@ -5,10 +5,10 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('New Product'), ['action' => 'add']) ?></li>
-    </ul>
+    <?= $this->element('actions', [
+        'type' => 'Product',
+        'typePlural' => 'Products'
+    ]); ?>
 </nav>
 <div class="products index large-9 medium-8 columns content">
     <h3><?= __('Products') ?></h3>

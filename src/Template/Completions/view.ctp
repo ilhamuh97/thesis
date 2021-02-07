@@ -7,12 +7,10 @@
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
+        <li><?= $this->Html->link(__('New Completion'), ['action' => 'add']) ?> </li>
+        <li><?= $this->Html->link(__('List Completions'), ['action' => 'index']) ?> </li>
         <li><?= $this->Html->link(__('Edit Completion'), ['action' => 'edit', $completion->id]) ?> </li>
         <li><?= $this->Form->postLink(__('Delete Completion'), ['action' => 'delete', $completion->id], ['confirm' => __('Are you sure you want to delete # {0}?', $completion->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Completions'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Completion'), ['action' => 'add']) ?> </li>
-        <li><?= $this->Html->link(__('List Suggestions'), ['controller' => 'Suggestions', 'action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Suggestion'), ['controller' => 'Suggestions', 'action' => 'add']) ?> </li>
     </ul>
 </nav>
 <div class="completions view large-9 medium-8 columns content">

@@ -5,12 +5,10 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('List Completions'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Suggestions'), ['controller' => 'Suggestions', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Suggestion'), ['controller' => 'Suggestions', 'action' => 'add']) ?></li>
-    </ul>
+    <?= $this->element('actions', [
+        'type' => 'Completion',
+        'typePlural' => 'Completions'
+    ]); ?>
 </nav>
 <div class="completions form large-9 medium-8 columns content">
     <?= $this->Form->create($completion) ?>

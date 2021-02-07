@@ -7,10 +7,10 @@
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
+        <li><?= $this->Html->link(__('New Query'), ['action' => 'add']) ?> </li>
+        <li><?= $this->Html->link(__('List Queries'), ['action' => 'index']) ?> </li>
         <li><?= $this->Html->link(__('Edit Query'), ['action' => 'edit', $query->id]) ?> </li>
         <li><?= $this->Form->postLink(__('Delete Query'), ['action' => 'delete', $query->id], ['confirm' => __('Are you sure you want to delete # {0}?', $query->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Queries'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Query'), ['action' => 'add']) ?> </li>
     </ul>
 </nav>
 <div class="queries view large-9 medium-8 columns content">
