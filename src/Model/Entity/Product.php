@@ -11,6 +11,8 @@ use Cake\ORM\Entity;
  * @property string|null $brand
  * @property \Cake\I18n\FrozenTime|null $created
  * @property \Cake\I18n\FrozenTime|null $modified
+ * @property string|null $category
+ * @property string|null $localized_aspects
  */
 class Product extends Entity
 {
@@ -28,5 +30,7 @@ class Product extends Entity
         'brand' => true,
         'created' => true,
         'modified' => true,
+        'category' => true,
+        'localized_aspects' => true,
     ];
 }

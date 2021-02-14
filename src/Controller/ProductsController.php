@@ -20,6 +20,7 @@ class ProductsController extends AppController
     public function index()
     {
         $products = $this->paginate($this->Products);
+
         $this->set(compact('products'));
     }
 
@@ -101,5 +102,75 @@ class ProductsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * Generate Word Suggestion
+     *
+     * @param string|null $id Product id
+     */
+    public function generate($id = null)
+    {
+        $product = $this->Products->get($id, [
+            'contain' => [],
+        ]);
+        $product = $this->beautify_product($product);
+        $suggest = [];
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            $selected_attributes_id = $data['selected_attributes']['_ids'];
+            $selected_attributes = [];
+            foreach ($selected_attributes_id as $id) {
+                # code...
+                $result = explode(' : ', $product['attributes'][$id]);
+                $selected_attributes[$result[0]] = $result[1];
+            }
+            $suggest['product_type'] = $data['product_type'];
+            $suggest['selected_attributes'] = $selected_attributes;
+            $this->build_suggestions($suggest);
+        }
+        $this->set(compact('product'));
+    }
+
+    /**
+     * Reform Product
+     */
+    protected function beautify_product($product)
+    {
+        $localized_aspects = explode(';', $product['localized_aspects']);
+        $attributes = $this->decode_attributes($localized_aspects);
+        $product['categories'] = explode('|', $product['category']);
+        $product['attributes'] = $attributes;
+        unset($product['localized_aspects']);
+        unset($product['category']);
+        return $product;
+    }
+
+    /**
+     * Decode localaized_aspects to readable attributes
+     */
+    protected function decode_attributes($localized_aspects)
+    {
+        $attributes = [];
+        $index = 0;
+        foreach ($localized_aspects as $l_a) {
+            # code...
+            $result = explode(':', $l_a);
+            $attributes[$index] = base64_decode($result[0]) . ' : ' . base64_decode($result[1]);
+            $index++;
+        }
+        return $attributes;
+    }
+    
+    /**
+     * build word suggestions
+     */
+    protected function build_suggestions($suggest)
+    {
+        AppController::import('Controller', 'Completions');
+        $product_type = $suggest['product_type'];
+        $suggest1['title'] = strtolower($product_type . ' ' . $suggest['selected_attributes']['Farbe']);
+        $Completions = new UsersController;
+        print_r($Completions);
     }
 }

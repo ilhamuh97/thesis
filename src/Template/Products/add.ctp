@@ -17,6 +17,8 @@
         <?php
             echo $this->Form->control('title');
             echo $this->Form->control('brand');
+            echo $this->Form->control('category');
+            echo $this->Form->control('localized_aspects');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

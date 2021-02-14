@@ -62,6 +62,16 @@ class ProductsTable extends Table
             ->maxLength('brand', 255)
             ->allowEmptyString('brand');
 
+        $validator
+            ->scalar('category')
+            ->maxLength('category', 255)
+            ->allowEmptyString('category');
+
+        $validator
+            ->scalar('localized_aspects')
+            ->maxLength('localized_aspects', 255)
+            ->allowEmptyString('localized_aspects');
+
         return $validator;
     }
 }

@@ -18,6 +18,8 @@
                 <th scope="col"><?= $this->Paginator->sort('id') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('title') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('brand') ?></th>
+                <th scope="col"><?= $this->Paginator->sort('category') ?></th>
+                <th scope="col"><?= $this->Paginator->sort('localized_aspects') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('created') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('modified') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
@@ -29,11 +31,14 @@
                 <td><?= $this->Number->format($product->id) ?></td>
                 <td><?= h($product->title) ?></td>
                 <td><?= h($product->brand) ?></td>
+                <td><?= h($product->category) ?></td>
+                <td><?= h($product->localized_aspects) ?></td>
                 <td><?= h($product->created) ?></td>
                 <td><?= h($product->modified) ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['action' => 'view', $product->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['action' => 'edit', $product->id]) ?>
+                    <?= $this->Html->link(__('Generate'), ['action' => 'generate', $product->id]) ?>
                     <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $product->id], ['confirm' => __('Are you sure you want to delete # {0}?', $product->id)]) ?>
                 </td>
             </tr>
