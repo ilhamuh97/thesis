@@ -9,6 +9,7 @@ use Cake\Validation\Validator;
 /**
  * Completions Model
  *
+ * @property \App\Model\Table\ProductsTable&\Cake\ORM\Association\BelongsToMany $Products
  * @property \App\Model\Table\SuggestionsTable&\Cake\ORM\Association\BelongsToMany $Suggestions
  *
  * @method \App\Model\Entity\Completion get($primaryKey, $options = [])
@@ -40,11 +41,15 @@ class CompletionsTable extends Table
 
         $this->addBehavior('Timestamp');
 
+        $this->belongsToMany('Products', [
+            'foreignKey' => 'completion_id',
+            'targetForeignKey' => 'product_id',
+            'joinTable' => 'completions_products',
+        ]);
         $this->belongsToMany('Suggestions', [
             'foreignKey' => 'completion_id',
             'targetForeignKey' => 'suggestion_id',
             'joinTable' => 'completions_suggestions',
-            'dependent' => true
         ]);
     }
 
@@ -67,43 +72,5 @@ class CompletionsTable extends Table
             ->notEmptyString('title');
 
         return $validator;
-    }
-
-    public function beforeSave($event, $entity, $options)
-    {
-        if ($entity->suggestion_string) {
-            $entity->suggestions = $this->_buildSuggestions($entity->suggestion_string);
-        }
-    }
-
-    protected function _buildSuggestions($suggestionString)
-    {
-        // Trim Suggestions
-        $newSuggestions = array_map('trim', explode(',', $suggestionString));
-        // Remove all empty Suggestions
-        $newSuggestions = array_filter($newSuggestions);
-        // Reduce duplicated Suggestions
-        $newSuggestions = array_unique($newSuggestions);
-
-        $out = [];
-        $query = $this->Suggestions->find()
-        ->where(['Suggestions.title IN' => $newSuggestions]);
-
-        // Remove existing Suggestions from the list of new Suggestions.
-        foreach ($query->extract('title') as $existing) {
-            $index = array_search($existing, $newSuggestions);
-            if ($index !== false) {
-                unset($newSuggestions[$index]);
-            }
-        }
-        // Add existing Suggestions.
-        foreach ($query as $suggestions) {
-            $out[] = $suggestions;
-        }
-        // Add new Suggestions.
-        foreach ($newSuggestions as $suggestions) {
-            $out[] = $this->Suggestions->newEntity(['title' => $suggestions]);
-        }
-        return $out;
     }
 }

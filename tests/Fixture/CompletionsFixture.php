@@ -39,8 +39,8 @@ class CompletionsFixture extends TestFixture
             [
                 'id' => 1,
                 'title' => 'Lorem ipsum dolor sit amet',
-                'created' => '2021-02-06 17:15:09',
-                'modified' => '2021-02-06 17:15:09',
+                'created' => '2021-02-16 20:03:46',
+                'modified' => '2021-02-16 20:03:46',
             ],
         ];
         parent::init();

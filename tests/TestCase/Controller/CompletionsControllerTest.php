@@ -21,7 +21,9 @@ class CompletionsControllerTest extends TestCase
      */
     public $fixtures = [
         'app.Completions',
+        'app.Products',
         'app.Suggestions',
+        'app.CompletionsProducts',
         'app.CompletionsSuggestions',
     ];
 

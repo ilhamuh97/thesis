@@ -1,7 +1,6 @@
 <?php
 namespace App\Model\Entity;
 
-use Cake\Collection\Collection;
 use Cake\ORM\Entity;
 
 /**
@@ -12,6 +11,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime|null $created
  * @property \Cake\I18n\FrozenTime|null $modified
  *
+ * @property \App\Model\Entity\Product[] $products
  * @property \App\Model\Entity\Suggestion[] $suggestions
  */
 class Completion extends Entity
@@ -29,22 +29,7 @@ class Completion extends Entity
         'title' => true,
         'created' => true,
         'modified' => true,
+        'products' => true,
         'suggestions' => true,
-        'suggestion_string' => true,
     ];
-
-    protected function _getSuggestionString()
-    {
-        if (isset($this->_properties['suggestion_string'])) {
-            return $this->_properties['suggestion_string'];
-        }
-        if (empty($this->suggestions)) {
-            return '';
-        }
-        $suggestions = new Collection($this->suggestions);
-        $str = $suggestions->reduce(function ($string, $suggestion) {
-            return $string . $suggestion->title . ', ';
-        }, '');
-        return trim($str, ', ');
-    }
 }

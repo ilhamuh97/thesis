@@ -45,4 +45,31 @@
             <td><?= h($product->modified) ?></td>
         </tr>
     </table>
+    <div class="related">
+        <h4><?= __('Related Products') ?></h4>
+        <?php if (!empty($product->completions)): ?>
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <th scope="col"><?= __('Id') ?></th>
+                <th scope="col"><?= __('Title') ?></th>
+                <th scope="col"><?= __('Created') ?></th>
+                <th scope="col"><?= __('Modified') ?></th>
+                <th scope="col" class="actions"><?= __('Actions') ?></th>
+            </tr>
+            <?php foreach ($product->completions as $completions): ?>
+            <tr>
+                <td><?= h($completions->id) ?></td>
+                <td><?= h($completions->title) ?></td>
+                <td><?= h($completions->created) ?></td>
+                <td><?= h($completions->modified) ?></td>
+                <td class="actions">
+                    <?= $this->Html->link(__('View'), ['controller' => 'Completions', 'action' => 'view', $completions->id]) ?>
+                    <?= $this->Html->link(__('Edit'), ['controller' => 'Completions', 'action' => 'edit', $completions->id]) ?>
+                    <?= $this->Form->postLink(__('Delete'), ['controller' => 'Completions', 'action' => 'delete', $completions->id], ['confirm' => __('Are you sure you want to delete {0}?', $completions->title)]) ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+        <?php endif; ?>
+    </div>
 </div>

@@ -9,6 +9,8 @@ use Cake\Validation\Validator;
 /**
  * Products Model
  *
+ * @property &\Cake\ORM\Association\BelongsToMany $Completions
+ *
  * @method \App\Model\Entity\Product get($primaryKey, $options = [])
  * @method \App\Model\Entity\Product newEntity($data = null, array $options = [])
  * @method \App\Model\Entity\Product[] newEntities(array $data, array $options = [])
@@ -37,6 +39,12 @@ class ProductsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+
+        $this->belongsToMany('Completions', [
+            'foreignKey' => 'product_id',
+            'targetForeignKey' => 'completion_id',
+            'joinTable' => 'completions_products',
+        ]);
     }
 
     /**
@@ -69,7 +77,7 @@ class ProductsTable extends Table
 
         $validator
             ->scalar('localized_aspects')
-            ->maxLength('localized_aspects', 255)
+            ->maxLength('localized_aspects', 4294967295)
             ->allowEmptyString('localized_aspects');
 
         return $validator;

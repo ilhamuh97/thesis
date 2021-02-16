@@ -24,6 +24,7 @@ class CompletionsTableTest extends TestCase
      */
     public $fixtures = [
         'app.Completions',
+        'app.Products',
         'app.Suggestions',
     ];
 
@@ -67,6 +68,16 @@ class CompletionsTableTest extends TestCase
      * @return void
      */
     public function testValidationDefault()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    /**
+     * Test beforeSave method
+     *
+     * @return void
+     */
+    public function testBeforeSave()
     {
         $this->markTestIncomplete('Not implemented yet.');
     }
