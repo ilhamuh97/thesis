@@ -16,7 +16,7 @@
         <legend><?= __('Add Completion') ?></legend>
         <?php
             echo $this->Form->control('title');
-            echo $this->Form->control('suggestion_string', ['type' => 'text']);
+            echo $this->Form->control('suggestions._ids', ['options' => $suggestions]);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>
