@@ -123,19 +123,22 @@ class CompletionsController extends AppController
             $data = $this->request->getData();
             $data['product_type'] = explode(',', $data['product_type']);
             foreach ($data['product_type'] as $product_type) {
+                $product_type = preg_replace("/[^A-Za-z0-9öÖäAüÜ \_]/", '', $product_type);
                 if (!empty($data['selected_attributes']['_ids'])) {
-                    $title =  $this->build_completion('attribute', $product_type, $data, $product);
+                    //attribute + brand (brand added in front of the completion)
+                    $title =  $this->build_completion($product_type, $data, $product, 'attributes');
                     $completion_entity['title'] = $title;
                     $completion_entity['products']['_ids'] =  array($id);
                     array_push($completion_entities, $completion_entity);
                 } elseif (!empty($data['brand'])) {
-                    $title = $data['brand'] . ' ' . $product_type;
+                    // only brand
+                    $title = mb_strtolower($data['brand'] . ' ' . $product_type);
                     $completion_entity['title'] = $title;
                     $completion_entity['products']['_ids'] =  array($id);
                     array_push($completion_entities, $completion_entity);
                 }
                 if (!empty($data['categories']['_ids'])) {
-                    $titles =  $this->build_completion('category', $product_type, $data, $product);
+                    $titles =  $this->build_completion($product_type, $data, $product, 'categories');
                     foreach ($titles as $title) {
                         $completion_entity['title'] = $title;
                         $completion_entity['products']['_ids'] =  array($id);
@@ -150,18 +153,15 @@ class CompletionsController extends AppController
             // save entities to database
             $patched = $this->Completions->patchEntities($completion, $completion_entities);
             $success = true;
-            $saving = true;
             $error_message = "";
             foreach ($patched as $entity) {
                 if (!$this->Completions->save($entity)) {
                     $success = false;
-                    $saving = false;
+                    // make error more user friendly
                     $error_message = "The completion " . $entity['title'] . " could not be saved. Please, try again.";
-                    print_r($error_message);
                     break;
                 }
             }
-            
             if ($success) {
                 $this->Flash->success(__('The completions have been saved.'));
             } else {
@@ -179,7 +179,8 @@ class CompletionsController extends AppController
         $localized_aspects = explode(';', $product['localized_aspects']);
         $attributes = $this->decode_localized_aspects($localized_aspects);
         $product['categories'] = explode('|', $product['category']);
-        $product['attributes'] = $attributes;
+        $product['attributes'] = $this->neglect($attributes, 'attributes');
+        $product['brand'] = $this->neglect($product['brand'], 'brand');
         //remove unneccessary
         unset($product['localized_aspects']);
         unset($product['category']);
@@ -204,10 +205,10 @@ class CompletionsController extends AppController
     /**
      * build word suggestions
      */
-    protected function build_completion($completion_type = null, $product_type, $data, $product)
+    protected function build_completion($product_type, $data, $product, $completion_type = null)
     {
         switch ($completion_type) {
-            case 'attribute':
+            case 'attributes':
                 //trim selected attributes
                 $selected_attributes = [];
                 $brand = $data['brand'];
@@ -223,17 +224,13 @@ class CompletionsController extends AppController
                 return $suggest['title'];
                 break;
             
-            case 'category':
-                $selected_categories = [];
+            case 'categories':
                 $suggest['titles'] = [];
+                //trim categories
                 foreach ($data['categories']['_ids'] as $category_id) {
-                    array_push($selected_categories, $product['categories'][$category_id]);
-                }
-                foreach ($selected_categories as $category) {
-                    $title = $product_type . ' - ' . $category;
+                    $title =  mb_strtolower($product_type . ' - ' . $product['categories'][$category_id]);
                     array_push($suggest['titles'], $title);
                 }
-                print_r($suggest['titles']);
                 return $suggest['titles'];
                 break;
             
@@ -242,5 +239,34 @@ class CompletionsController extends AppController
                 break;
         }
         ;
+    }
+
+    protected function neglect($item, $type)
+    {
+        $neglections = ["nicht zutreffend", "unbekannt", "markenlos", null, "nein"];
+        switch ($type) {
+            case 'attributes':
+                $result = [];
+                foreach ($item as $i) {
+                    $value = explode(' : ', $i);
+                    if (!in_array(mb_strtolower($value[1]), $neglections)) {
+                        array_push($result, $i);
+                    }
+                }
+                return $result;
+                break;
+            
+            case 'brand':
+                $result = "";
+                if (!in_array(mb_strtolower($item), $neglections)) {
+                    $result = $item;
+                }
+                return $result;
+                break;
+            
+            default:
+                return $item;
+                break;
+        }
     }
 }
