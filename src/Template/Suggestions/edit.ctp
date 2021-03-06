@@ -23,7 +23,6 @@
     <fieldset>
         <legend><?= __('Edit Suggestion') ?></legend>
         <?php
-            echo $this->Form->control('title');
             echo $this->Form->control('completions._ids', ['options' => $completions]);
         ?>
     </fieldset>

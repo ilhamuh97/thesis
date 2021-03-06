@@ -32,5 +32,7 @@ class Product extends Entity
         'modified' => true,
         'category' => true,
         'localized_aspects' => true,
+        'completions' => true,
+        'completions_title' => true,
     ];
 }
