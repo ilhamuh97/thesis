@@ -12,6 +12,14 @@
 </nav>
 <div class="completions index large-9 medium-8 columns content">
     <h3><?= __('Completions') ?></h3>
+    <?= $this->Form->create($completions, ['url' => ['action' => 'index'], 'type' => 'get']); ?>
+    <fieldset>
+        <legend><?= __('Search') ?></legend>
+        <?php
+            echo $this->Form->control('input_title');
+        ?>
+    </fieldset>
+    <?= $this->Form->end() ?>
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>

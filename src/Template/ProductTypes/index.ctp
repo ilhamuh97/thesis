@@ -12,6 +12,14 @@
 </nav>
 <div class="productTypes index large-9 medium-8 columns content">
     <h3><?= __('Product Types') ?></h3>
+    <?= $this->Form->create($productTypes, ['url' => ['action' => 'index'], 'type' => 'get']); ?>
+    <fieldset>
+        <legend><?= __('Search') ?></legend>
+        <?php
+            echo $this->Form->control('input_title');
+        ?>
+    </fieldset>
+    <?= $this->Form->end() ?>
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>

@@ -17,12 +17,21 @@ class ProductsController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
-    public function index()
+    public function index($title= null)
     {
-        $products = $this->paginate($this->Products);
+        if (isset($this->request->query['input_title'])) {
+            $title = $this->request->query['input_title'];
+        }
+
+        $products = $this->Products->find('all', array(
+            'conditions' => ['Products.title LIKE' => '%' . $title . '%']
+        ));
+        
+        $products = $this->paginate($products);
 
         $this->set(compact('products'));
     }
+
 
     /**
      * View method

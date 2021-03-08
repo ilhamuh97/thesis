@@ -17,9 +17,17 @@ class CompletionsController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
-    public function index()
+    public function index($title= null)
     {
-        $completions = $this->paginate($this->Completions);
+        if (isset($this->request->query['input_title'])) {
+            $title = $this->request->query['input_title'];
+        }
+
+        $completions = $this->Completions->find('all', array(
+            'conditions' => ['completions.title LIKE' => '%' . $title . '%']
+        ));
+        
+        $completions = $this->paginate($completions);
 
         $this->set(compact('completions'));
     }
@@ -107,6 +115,4 @@ class CompletionsController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
-
-    
 }
