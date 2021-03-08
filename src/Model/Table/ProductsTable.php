@@ -45,6 +45,12 @@ class ProductsTable extends Table
             'targetForeignKey' => 'completion_id',
             'joinTable' => 'completions_products',
         ]);
+
+        $this->belongsToMany('product_types', [
+            'foreignKey' => 'product_id',
+            'targetForeignKey' => 'product_type_id',
+            'joinTable' => 'product_types_products',
+        ]);
     }
 
     /**
@@ -88,7 +94,7 @@ class ProductsTable extends Table
         if ($entity->completions_title) {
             // related completion
             $related_completions = $entity->completions;
-            foreach($related_completions as $ec){
+            foreach ($related_completions as $ec) {
                 array_push($entity->completions_title, $ec->title);
             }
             $entity->completions = $this->_buildCompletions($entity->completions_title);
@@ -121,5 +127,4 @@ class ProductsTable extends Table
 
         return $out;
     }
-
 }
