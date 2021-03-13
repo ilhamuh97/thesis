@@ -42,7 +42,7 @@
     <fieldset>
         <legend><?= __('Generate Suggestions') ?></legend>
         <?php
-            echo $this->Form->control('product type', ['required' => true]);
+            echo $this->Form->control('product_types._ids', ['options' => $product_types]);
             echo $this->Form->control('selected_attributes._ids', ['options' => $readable_product->attributes]);
             echo $this->Form->control('brand', ['required' => false, 'value'=>$readable_product->brand]);
             echo $this->Form->control('categories._ids', ['required' => false, 'options' => $readable_product->categories]);

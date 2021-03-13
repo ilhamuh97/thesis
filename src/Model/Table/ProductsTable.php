@@ -99,6 +99,7 @@ class ProductsTable extends Table
             }
             $entity->completions = $this->_buildCompletions($entity->completions_title);
         }
+        // print_r($entity);
     }
     protected function _buildCompletions($completions_title)
     {

@@ -46,7 +46,7 @@
         </tr>
     </table>
     <div class="related">
-        <h4><?= __('Related Products') ?></h4>
+        <h4><?= __('Related Completions') ?></h4>
         <?php if (!empty($product->completions)): ?>
         <table cellpadding="0" cellspacing="0">
             <tr>
@@ -66,6 +66,32 @@
                     <?= $this->Html->link(__('View'), ['controller' => 'Completions', 'action' => 'view', $completions->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['controller' => 'Completions', 'action' => 'edit', $completions->id]) ?>
                     <?= $this->Form->postLink(__('Delete'), ['controller' => 'Completions', 'action' => 'delete', $completions->id], ['confirm' => __('Are you sure you want to delete {0}?', $completions->title)]) ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+        <?php endif; ?>
+        <br>
+        <h4><?= __('Related Product Types') ?></h4>
+        <?php if (!empty($product->product_types)): ?>
+        <table cellpadding="0" cellspacing="0">
+            <tr>
+                <th scope="col"><?= __('Id') ?></th>
+                <th scope="col"><?= __('Title') ?></th>
+                <th scope="col"><?= __('Created') ?></th>
+                <th scope="col"><?= __('Modified') ?></th>
+                <th scope="col" class="actions"><?= __('Actions') ?></th>
+            </tr>
+            <?php foreach ($product->product_types as $product_type): ?>
+            <tr>
+                <td><?= h($product_type->id) ?></td>
+                <td><?= h($product_type->title) ?></td>
+                <td><?= h($product_type->created) ?></td>
+                <td><?= h($product_type->modified) ?></td>
+                <td class="actions">
+                    <?= $this->Html->link(__('View'), ['controller' => 'Product_types', 'action' => 'view', $product_type->id]) ?>
+                    <?= $this->Html->link(__('Edit'), ['controller' => 'Product_types', 'action' => 'edit', $product_type->id]) ?>
+                    <?= $this->Form->postLink(__('Delete'), ['controller' => 'Product_types', 'action' => 'delete', $product_type->id], ['confirm' => __('Are you sure you want to delete {0}?', $completions->title)]) ?>
                 </td>
             </tr>
             <?php endforeach; ?>

@@ -5,21 +5,21 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('New Product'), ['action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('Auto Generate'), ['action' => 'auto']) ?></li>
-    </ul>
+    <?= $this->element('actions', [
+        'type' => 'Product',
+        'typePlural' => 'Products'
+    ]); ?>
 </nav>
 <div class="products index large-9 medium-8 columns content">
-    <h3><?= __('Products') ?></h3>
-    <?= $this->Form->create($products, ['url' => ['action' => 'index'], 'type' => 'get']); ?>
+    <h3><?= __('Generate Completions for Mutliple Products') ?></h3>
+    <?= $this->Form->create($products) ?>
     <fieldset>
-        <legend><?= __('Search') ?></legend>
+        <legend><?= __('Generate Suggestions') ?></legend>
         <?php
-            echo $this->Form->control('input_title');
+            echo $this->Form->control('product_types._ids', ['options' => $product_types]);
         ?>
     </fieldset>
+    <?= $this->Form->button(__('Submit')) ?>
     <?= $this->Form->end() ?>
     <table cellpadding="0" cellspacing="0">
         <thead>
@@ -64,4 +64,3 @@
         </ul>
         <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
     </div>
-</div>

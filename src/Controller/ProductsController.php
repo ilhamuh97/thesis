@@ -32,6 +32,103 @@ class ProductsController extends AppController
         $this->set(compact('products'));
     }
 
+    /**
+     * Index method
+     *
+     * @return \Cake\Http\Response|null
+     */
+    public function auto()
+    {
+        $products = $this->Products->find('all');
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            // get whole sent data
+            $data = $this->request->getData();
+            // TODO: get recommended Attributes based on category
+            $recommended_attributes = ['farbe', 'größe'];
+            foreach ($data['product_types']['_ids'] as $product_type_id) {
+                // get product type title
+                $product_type_title = $this->Products->Product_Types->get($product_type_id)->title;
+                // get all products based on product type
+                $products = $this->Products->find('all', array(
+                    'conditions' => ['Products.title LIKE' => '%' . $product_type_title . '%'],
+                    'contain' => ['Completions','Product_types'],
+                ));
+                // remove non alphabetic symbols
+                $product_type_title = preg_replace("/[^A-Za-z0-9öÖäAüÜ \_]/", '', $product_type_title);
+                $product_type_title = trim($product_type_title);
+                // loop every products
+                foreach ($products as $product) {
+                    // don't remove the owned product types
+                    $completion_entities['product_types']['_ids'] = [];
+                    if ($product->product_types) {
+                        $ids = [];
+                        foreach ($product->product_types as $related_product_type) {
+                            array_push($ids, $related_product_type->id);
+                        }
+                        if (!in_array($product_type_id, $ids)) {
+                            array_push($ids, $product_type_id);
+                        }
+                        $completion_entities['product_types']['_ids'] = $ids;
+                    } else {
+                        $ids = [];
+                        array_push($ids, $product_type_id);
+                        $completion_entities['product_types']['_ids'] = $ids;
+                    }
+                    // don't remove the owned completions
+                    $completion_entities['completions']['_ids'] = [];
+                    if ($product->completions) {
+                        $ids = [];
+                        foreach ($product->completions as $related_completion) {
+                            array_push($ids, $related_completion->id);
+                        }
+                        $completion_entities['completions']['_ids'] = $ids;
+                    }
+                    // decode localized aspects, make categories as an array, and unset unneccessary
+                    $readable_product = $this->beautify_product($product);
+                    $completion_entities['completions_title'] = []; //declare empty completions_enitities
+                    // get attributes compared to recommended atts
+                    $selected_attributes = [];
+                    $selected_attributes_combinations = [];
+                    foreach ($readable_product['attributes'] as $attribute) {
+                        $result = explode(' : ', $attribute);
+                        $key = $result[0];
+                        $value = $result[1];
+                        if (in_array(mb_strtolower($key), $recommended_attributes)) {
+                            $selected_attributes[$key] = $value;
+                        }
+                    }
+                    // get combinations min 1 and max 3
+                    if ($selected_attributes) {
+                        $combinations = $this->combinations($selected_attributes, 1, 3);
+                        foreach ($combinations as $combination) {
+                            // get permuations
+                            $permutations = $this->permutations($combination);
+                            foreach ($permutations as $p) {
+                                $selected_attributes_combinations = join(' ', $p);
+                                $end_combination = mb_strtolower($product_type_title . ' ' .$selected_attributes_combinations);
+                                array_push($completion_entities['completions_title'], $end_combination);
+                            }
+                        }
+                    }
+                    foreach ($readable_product['categories'] as $category) {
+                        $title =  mb_strtolower($product_type_title . ' - ' . $category);
+                        array_push($completion_entities['completions_title'], $title);
+                    }
+                    $product = $this->Products->patchEntity($product, $completion_entities);
+                    if ($this->Products->save($product)) {
+                        $this->Flash->success(__('The product has been saved.'));
+                    } else {
+                        $this->Flash->error(__('The product could not be saved. Please, try again.'));
+                    }
+                }
+            }
+        }
+        $product_types = $this->Products->Product_Types->find('list', ['limit' => 200]);
+        $products = $this->paginate($products);
+        $this->set(compact('products', 'product_types'));
+    }
+
 
     /**
      * View method
@@ -43,7 +140,7 @@ class ProductsController extends AppController
     public function view($id = null)
     {
         $product = $this->Products->get($id, [
-            'contain' => ['Completions'],
+            'contain' => ['Completions', 'Product_types'],
         ]);
 
         $this->set('product', $product);
@@ -123,16 +220,18 @@ class ProductsController extends AppController
     public function generate($id = null)
     {
         $product = $this->Products->get($id, [
-            'contain' => ['Completions'],
+            'contain' => ['Completions', 'Product_types'],
         ]);
         $readable_product = $this->beautify_product($this->Products->get($id));
         $completion_entities['completions_title'] = [];
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $related_completions = $data['completions'];
-            $data['product_type'] = explode(',', $data['product_type']);
-            foreach ($data['product_type'] as $product_type) {
+            $related_product_types = $data['product_types'];
+            foreach ($data['product_types']['_ids'] as $product_type_id) {
                 // remove all non alphabet numeric type
+                $product_type = $this->Products->Product_Types->get($product_type_id)->title;
+                // print_r($product_type);
                 $product_type = preg_replace("/[^A-Za-z0-9öÖäAüÜ \_]/", '', $product_type);
                 $product_type = trim($product_type);
                 if ($data['selected_attributes']['_ids']) {
@@ -155,19 +254,20 @@ class ProductsController extends AppController
                 }
                 array_push($completion_entities['completions_title'], $product_type);
             }
+            $completion_entities['product_types'] = $related_product_types;
             $completion_entities['completions'] = $related_completions;
-            // print_r($completion_entities);
             $product = $this->Products->patchEntity($product, $completion_entities);
             //save completions
             if ($this->Products->save($product)) {
                 $this->Flash->success(__('The product has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                // return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The product could not be saved. Please, try again.'));
         }
         $completions = $this->Products->Completions->find('list', ['limit' => 200]);
-        $this->set(compact('product', 'readable_product', 'completions'));
+        $product_types = $this->Products->Product_Types->find('list', ['limit' => 200]);
+        $this->set(compact('product', 'readable_product', 'completions', 'product_types'));
     }
 
     /**
@@ -195,7 +295,9 @@ class ProductsController extends AppController
         $index = 0;
         foreach ($localized_aspects as $l_a) {
             $result = explode(':', $l_a);
-            $attributes[$index] = base64_decode($result[0]) . ' : ' . base64_decode($result[1]);
+            if ($result[0] && $result[1]) {
+                $attributes[$index] = base64_decode($result[0]) . ' : ' . base64_decode($result[1]);
+            }
             $index++;
         }
         return $attributes;
