@@ -95,7 +95,11 @@ class ProductsController extends AppController
                         $key = $result[0];
                         $value = $result[1];
                         if (in_array(mb_strtolower($key), $recommended_attributes)) {
-                            $selected_attributes[$key] = $value;
+                            if (str_contains($value, '/')) {
+                                $selected_attributes[$key] = explode('/', $value);
+                            } else {
+                                $selected_attributes[$key] = array($value);
+                            }
                         }
                     }
                     // get combinations min 1 and max 3
@@ -105,9 +109,12 @@ class ProductsController extends AppController
                             // get permuations
                             $permutations = $this->permutations($combination);
                             foreach ($permutations as $p) {
-                                $selected_attributes_combinations = join(' ', $p);
-                                $end_combination = mb_strtolower($product_type_title . ' ' .$selected_attributes_combinations);
-                                array_push($completion_entities['completions_title'], $end_combination);
+                                foreach ($this->array_cartesian_product($p) as $result) {
+                                    $selected_attributes_combinations = join(' ', $result);
+                                    // remove multiple whitespaces, str to lower, and remove whitescpace before and after sentence
+                                    $end_combination = trim(preg_replace('/\s+/', ' ', mb_strtolower($product_type_title . ' ' .$selected_attributes_combinations)));
+                                    array_push($completion_entities['completions_title'], $end_combination);
+                                }
                             }
                         }
                     }
@@ -115,6 +122,7 @@ class ProductsController extends AppController
                         $title =  mb_strtolower($product_type_title . ' - ' . $category);
                         array_push($completion_entities['completions_title'], $title);
                     }
+                    // print_r($completion_entities['completions_title']);
                     $product = $this->Products->patchEntity($product, $completion_entities);
                     if ($this->Products->save($product)) {
                         $this->Flash->success(__('The product has been saved.'));
@@ -260,8 +268,7 @@ class ProductsController extends AppController
             //save completions
             if ($this->Products->save($product)) {
                 $this->Flash->success(__('The product has been saved.'));
-
-                // return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The product could not be saved. Please, try again.'));
         }
@@ -341,24 +348,30 @@ class ProductsController extends AppController
             case 'attributes':
                 $selected_attributes = [];
                 $suggest['titles'] = [];
-                $selected_attributes_combinations = [];
                 // trim selected attributes
                 foreach ($data['selected_attributes']['_ids'] as $attribute_id) {
                     $result = explode(' : ', $product['attributes'][$attribute_id]);
-                    $selected_attributes[$result[0]] = $result[1];
+                    if (str_contains($result[1], '/')) {
+                        $selected_attributes[$result[0]] = explode('/', $result[1]);
+                    } else {
+                        $selected_attributes[$result[0]] = array($result[1]);
+                    }
                 }
                 if ($data['brand']) {
-                    $selected_attributes['brand'] = $data['brand'];
+                    $selected_attributes['brand'] = array($data['brand']);
                 }
                 // get combinations min 1 and max 3
                 $combinations = $this->combinations($selected_attributes, 1, 3);
+                sort($combinations);
                 foreach ($combinations as $combination) {
                     // get permuations
                     $permutations = $this->permutations($combination);
                     foreach ($permutations as $p) {
-                        $selected_attributes_combinations = join(' ', $p);
-                        $end_combination = mb_strtolower($product_type . ' ' .$selected_attributes_combinations);
-                        array_push($suggest['titles'], $end_combination);
+                        foreach ($this->array_cartesian_product($p) as $result) {
+                            $selected_attributes_combinations = join(' ', $result);
+                            $end_combination = mb_strtolower($product_type . ' ' .$selected_attributes_combinations);
+                            array_push($suggest['titles'], $end_combination);
+                        }
                     }
                 }
                 return $suggest['titles'];
@@ -378,6 +391,35 @@ class ProductsController extends AppController
                 return null;
                 break;
         };
+    }
+
+    /**
+     * do cartesian formula
+     * https://stackoverflow.com/a/8567479
+     */
+    protected function array_cartesian_product($arrays)
+    {
+        $result = array();
+        $arrays = array_values($arrays);
+        $sizeIn = sizeof($arrays);
+        $size = $sizeIn > 0 ? 1 : 0;
+        foreach ($arrays as $array) {
+            $size = $size * sizeof($array);
+        }
+        for ($i = 0; $i < $size; $i ++) {
+            $result[$i] = array();
+            for ($j = 0; $j < $sizeIn; $j ++) {
+                array_push($result[$i], current($arrays[$j]));
+            }
+            for ($j = ($sizeIn -1); $j >= 0; $j --) {
+                if (next($arrays[$j])) {
+                    break;
+                } elseif (isset($arrays[$j])) {
+                    reset($arrays[$j]);
+                }
+            }
+        }
+        return $result;
     }
 
 
