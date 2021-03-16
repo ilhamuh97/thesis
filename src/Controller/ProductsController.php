@@ -22,13 +22,17 @@ class ProductsController extends AppController
         if (isset($this->request->query['input_title'])) {
             $title = $this->request->query['input_title'];
         }
-
+        $conditions = array();
+        $search_terms = explode(' ', $title);
+        foreach($search_terms as $search_term){
+            $conditions[] = array('AND' => array('Products.title LIKE' =>'%'.$search_term.'%'));
+        }
         $products = $this->Products->find('all', array(
-            'conditions' => ['Products.title LIKE' => '%' . $title . '%']
+            'conditions' => $conditions,
+            'contain' => ['Completions','Product_types'],
         ));
+        $products = $this->paginate($products); 
         
-        $products = $this->paginate($products);
-
         $this->set(compact('products'));
     }
 
@@ -50,8 +54,12 @@ class ProductsController extends AppController
                 // get product type title
                 $product_type_title = $this->Products->Product_Types->get($product_type_id)->title;
                 // get all products based on product type
+                $search_terms = explode(' ', $product_type_title);
+                foreach($search_terms as $search_term){
+                    $conditions[] = array('AND' => array('Products.title LIKE' =>'%'.$search_term.'%'));
+                }
                 $products = $this->Products->find('all', array(
-                    'conditions' => ['Products.title LIKE' => '%' . $product_type_title . '%'],
+                    'conditions' => $conditions,
                     'contain' => ['Completions','Product_types'],
                 ));
                 // remove non alphabetic symbols
