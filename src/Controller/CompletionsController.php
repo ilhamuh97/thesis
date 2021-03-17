@@ -17,14 +17,28 @@ class CompletionsController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
-    public function index($title= null)
+    public function index($title= null, $id=null)
     {
         if (isset($this->request->query['input_title'])) {
             $title = $this->request->query['input_title'];
         }
+        if (isset($this->request->query['input_id'])) {
+            $id = $this->request->query['input_id'];
+        }
+
+        $conditions = array();
+        if ($title) {
+            $search_terms = explode(' ', $title);
+            foreach ($search_terms as $search_term) {
+                $conditions[] = array('AND' => array('completions.title LIKE' =>'%'.$search_term.'%'));
+            }
+        }
+        if ($id) {
+            $conditions[] = array('AND' => array('completions.id' => $id));
+        }
 
         $completions = $this->Completions->find('all', array(
-            'conditions' => ['completions.title LIKE' => '%' . $title . '%']
+            'conditions' => $conditions,
         ));
         
         $completions = $this->paginate($completions);

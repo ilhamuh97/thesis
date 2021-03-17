@@ -16,9 +16,11 @@
     <fieldset>
         <legend><?= __('Search') ?></legend>
         <?php
-            echo $this->Form->control('input_title');
+            echo $this->Form->control('input_id', ['label' => 'Id', 'type'=>'text']);
+            echo $this->Form->control('input_title', ['label' => 'Title']);
         ?>
     </fieldset>
+    <?= $this->Form->button(__('Submit')) ?>
     <?= $this->Form->end() ?>
     <table cellpadding="0" cellspacing="0">
         <thead>

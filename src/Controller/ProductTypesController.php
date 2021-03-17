@@ -17,14 +17,27 @@ class ProductTypesController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
-    public function index($title= null)
+    public function index($title= null, $id=null)
     {
         if (isset($this->request->query['input_title'])) {
             $title = $this->request->query['input_title'];
         }
 
+        if (isset($this->request->query['input_id'])) {
+            $id = $this->request->query['input_id'];
+        }
+        $conditions = array();
+        if ($title) {
+            $search_terms = explode(' ', $title);
+            foreach ($search_terms as $search_term) {
+                $conditions[] = array('AND' => array('ProductTypes.title LIKE' =>'%'.$search_term.'%'));
+            }
+        }
+        if ($id) {
+            $conditions[] = array('AND' => array('ProductTypes.id' => $id));
+        }
         $productTypes = $this->ProductTypes->find('all', array(
-            'conditions' => ['productTypes.title LIKE' => '%' . $title . '%']
+            'conditions' => $conditions,
         ));
         
         $productTypes = $this->paginate($productTypes);

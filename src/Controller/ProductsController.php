@@ -17,21 +17,29 @@ class ProductsController extends AppController
      *
      * @return \Cake\Http\Response|null
      */
-    public function index($title= null)
+    public function index($title= null, $id=null)
     {
         if (isset($this->request->query['input_title'])) {
             $title = $this->request->query['input_title'];
         }
+        if (isset($this->request->query['input_id'])) {
+            $id = $this->request->query['input_id'];
+        }
         $conditions = array();
-        $search_terms = explode(' ', $title);
-        foreach($search_terms as $search_term){
-            $conditions[] = array('AND' => array('Products.title LIKE' =>'%'.$search_term.'%'));
+        if ($title) {
+            $search_terms = explode(' ', $title);
+            foreach ($search_terms as $search_term) {
+                $conditions[] = array('AND' => array('Products.title LIKE' =>'%'.$search_term.'%'));
+            }
+        }
+        if ($id) {
+            $conditions[] = array('AND' => array('Products.id' => $id));
         }
         $products = $this->Products->find('all', array(
             'conditions' => $conditions,
             'contain' => ['Completions','Product_types'],
         ));
-        $products = $this->paginate($products); 
+        $products = $this->paginate($products);
         
         $this->set(compact('products'));
     }
@@ -55,7 +63,7 @@ class ProductsController extends AppController
                 $product_type_title = $this->Products->Product_Types->get($product_type_id)->title;
                 // get all products based on product type
                 $search_terms = explode(' ', $product_type_title);
-                foreach($search_terms as $search_term){
+                foreach ($search_terms as $search_term) {
                     $conditions[] = array('AND' => array('Products.title LIKE' =>'%'.$search_term.'%'));
                 }
                 $products = $this->Products->find('all', array(
@@ -320,7 +328,7 @@ class ProductsController extends AppController
 
     protected function neglect($item, $type)
     {
-        $neglections = ["nicht zutreffend", "unbekannt", "markenlos", null, "nein"];
+        $neglections = ["nicht zutreffend", "unbekannt", "markenlos", null, "nein", "no-name", "nobrand", "unbranded", "unbranded/generic", "n/a", "null"];
         switch ($type) {
             case 'attributes':
                 $result = [];

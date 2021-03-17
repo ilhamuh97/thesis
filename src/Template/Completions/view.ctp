@@ -53,6 +53,7 @@
                 <td class="actions">
                     <?= $this->Html->link(__('View'), ['controller' => 'Products', 'action' => 'view', $products->id]) ?>
                     <?= $this->Html->link(__('Edit'), ['controller' => 'Products', 'action' => 'edit', $products->id]) ?>
+                    <?= $this->Html->link(__('Generate'), ['controller' => 'Products', 'action' => 'generate', $products->id]) ?>
                     <?= $this->Form->postLink(__('Delete'), ['controller' => 'Products', 'action' => 'delete', $products->id], ['confirm' => __('Are you sure you want to delete {0}?', $products->title)]) ?>
                 </td>
             </tr>
