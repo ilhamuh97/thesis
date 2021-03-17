@@ -91,39 +91,73 @@ class ProductsTable extends Table
 
     public function beforeSave($event, $entity, $options)
     {
-        if ($entity->completions_title) {
+        if ($entity->completion_titles) {
             // related completion
-            $related_completions = $entity->completions;
-            foreach ($related_completions as $ec) {
-                array_push($entity->completions_title, $ec->title);
+            $new_completions = $this->_buildCompletions($entity->completion_titles);
+            foreach ($new_completions as $completion) {
+                array_push($entity->completions, $completion);
             }
-            $entity->completions = $this->_buildCompletions($entity->completions_title);
         }
-        // print_r($entity);
+        
+        if ($entity->product_type_titles) {
+            // related completion
+            print_r($entity->product_type_titles);
+            $new_product_type_titles = $this->_buildProductTypes($entity->product_type_titles);
+            foreach ($new_product_type_titles as $product_type) {
+                array_push($entity->product_types, $product_type);
+            }
+        }
     }
-    protected function _buildCompletions($completions_title)
+    protected function _buildCompletions($completion_titles)
     {
         // remove duplication
-        $completions_title = array_unique($completions_title);
+        $completion_titles = array_unique($completion_titles);
         $out = [];
         $query = $this->Completions->find()
-            ->where(['Completions.title IN' => $completions_title]);
+            ->where(['Completions.title IN' => $completion_titles]);
 
 
-        // Remove existing tags from the list of new tags.
+        // Remove existing completion titles from the list of new tags.
         foreach ($query->extract('title') as $existing) {
-            $index = array_search($existing, $completions_title);
+            $index = array_search($existing, $completion_titles);
             if ($index !== false) {
-                unset($completions_title[$index]);
+                unset($completion_titles[$index]);
             }
         }
-        // Add existing tags.
+        // Add existing completion titles.
         foreach ($query as $completion) {
             $out[] = $completion;
         }
-        // Add new tags.
-        foreach ($completions_title as $completion) {
+        // Add new completion titles.
+        foreach ($completion_titles as $completion) {
             $out[] = $this->Completions->newEntity(['title' => $completion]);
+        }
+
+        return $out;
+    }
+
+    protected function _buildProductTypes($product_type_title)
+    {
+        // remove duplication
+        $product_type_title = array_unique($product_type_title);
+        $out = [];
+        $query = $this->Product_Types->find()
+            ->where(['product_types.title IN' => $product_type_title]);
+
+        // Remove existing product type from the list of new tags.
+        foreach ($query->extract('title') as $existing) {
+            $index = array_search($existing, $product_type_title);
+            if ($index !== false) {
+                unset($product_type_title[$index]);
+            }
+        }
+        // Add existing product type.
+        foreach ($query as $product_type) {
+            $out[] = $product_type;
+        }
+        // Add new product type.
+        foreach ($product_type_title as $product_type) {
+            $out[] = $this->Product_Types->newEntity(['title' => $product_type]);
         }
 
         return $out;

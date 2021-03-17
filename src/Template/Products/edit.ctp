@@ -25,6 +25,7 @@
             echo $this->Form->control('brand');
             echo $this->Form->control('category');
             echo $this->Form->control('localized_aspects');
+            echo $this->Form->control('product_types._ids', ['options' => $product_types]);
             echo $this->Form->control('completions._ids', ['options' => $completions]);
         ?>
     </fieldset>
