@@ -70,16 +70,30 @@ class ProductTypesController extends AppController
     {
         $productType = $this->ProductTypes->newEntity();
         if ($this->request->is('post')) {
-            $productType = $this->ProductTypes->patchEntity($productType, $this->request->getData());
-            if ($this->ProductTypes->save($productType)) {
-                $this->Flash->success(__('The product type has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+            $data = $this->request->getData();
+            $titles = explode(',', $data['title']);
+            $saved = true;
+            $message = '';
+            $titleError = [];
+            foreach ($titles as $title) {
+                $productType = $this->ProductTypes->newEntity();
+                $data['title'] = trim($title);
+                $productType = $this->ProductTypes->patchEntity($productType, $data);
+                if ($this->ProductTypes->save($productType)) {
+                    $message = 'The product types have been saved.';
+                } else {
+                    $saved = false;
+                    $titleError[] = $data['title'];
+                }
             }
-            $this->Flash->error(__('The product type could not be saved. Please, try again.'));
+            if ($saved) {
+                $this->Flash->success(__($message));
+            } else {
+                $message = 'The product type titles "' . join(', ', $titleError) . '" could not be saved. Please, try again.';
+                $this->Flash->error(__($message));
+            }
         }
-        $products = $this->ProductTypes->products->find('list', ['limit' => 200]);
-        $this->set(compact('productType', 'products'));
+        $this->set(compact('productType'));
     }
 
     /**

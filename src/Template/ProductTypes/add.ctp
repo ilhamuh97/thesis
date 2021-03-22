@@ -16,7 +16,6 @@
         <legend><?= __('Add Product Type') ?></legend>
         <?php
             echo $this->Form->control('title');
-            echo $this->Form->control('products._ids', ['options' => $products]);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

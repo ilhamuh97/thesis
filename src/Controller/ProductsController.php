@@ -58,6 +58,9 @@ class ProductsController extends AppController
             $data = $this->request->getData();
             // TODO: get recommended Attributes based on category
             $recommended_attributes = ['farbe', 'größe'];
+            $message = "";
+            $saved = true;
+            $idsError = [];
             foreach ($data['product_types']['_ids'] as $product_type_id) {
                 // get product type title
                 $product_type_title = $this->Products->Product_Types->get($product_type_id)->title;
@@ -140,11 +143,18 @@ class ProductsController extends AppController
                     }
                     $product = $this->Products->patchEntity($product, $completion_entities);
                     if ($this->Products->save($product)) {
-                        $this->Flash->success(__('The product has been saved.'));
+                        $message = 'The products have been saved.';
                     } else {
-                        $this->Flash->error(__('The product could not be saved. Please, try again.'));
+                        $saved = false;
+                        $idsError[] = $product->id;
                     }
                 }
+            }
+            if ($saved) {
+                $this->Flash->success(__($message));
+            } else {
+                $message = 'The product type ids "' . join(', ', $idsError) . '" could not be saved. Please, try again.';
+                $this->Flash->error(__($message));
             }
         }
         $product_types = $this->Products->Product_Types->find('list', ['limit' => 200]);

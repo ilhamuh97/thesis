@@ -67,4 +67,12 @@ class ProductTypesTable extends Table
 
         return $validator;
     }
+
+    //make this table unique
+    public function buildRules(RulesChecker $rules)
+    {
+        $rules->add($rules->isUnique(['title']));
+
+        return $rules;
+    }
 }
