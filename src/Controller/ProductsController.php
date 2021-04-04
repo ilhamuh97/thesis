@@ -64,7 +64,8 @@ class ProductsController extends AppController
             foreach ($data['product_types']['_ids'] as $product_type_id) {
                 // get product type title
                 $product_type_title = $this->Products->Product_Types->get($product_type_id)->title;
-                // get all products based on product type
+                // split product type by white space (more than 1 word)
+                $conditions = [];
                 $search_terms = explode(' ', $product_type_title);
                 foreach ($search_terms as $search_term) {
                     $conditions[] = array('AND' => array('Products.title LIKE' =>'%'.$search_term.'%'));
@@ -508,5 +509,14 @@ class ProductsController extends AppController
             }
         }
         return $return;
+    }
+
+    protected function console_log($output, $with_script_tags = true)
+    {
+        $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
+        if ($with_script_tags) {
+            $js_code = '<script>' . $js_code . '</script>';
+        }
+        echo $js_code;
     }
 }
