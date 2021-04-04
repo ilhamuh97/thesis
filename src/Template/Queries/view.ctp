@@ -5,13 +5,11 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('New Query'), ['action' => 'add']) ?> </li>
-        <li><?= $this->Html->link(__('List Queries'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('Edit Query'), ['action' => 'edit', $query->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete Query'), ['action' => 'delete', $query->id], ['confirm' => __('Are you sure you want to delete # {0}?', $query->id)]) ?> </li>
-    </ul>
+    <?= $this->element('Actions/actionsView', [
+        'type' => 'Query',
+        'typePlural' => 'Queries',
+        'typeId' =>  $query->id
+    ]); ?>
 </nav>
 <div class="queries view large-9 medium-8 columns content">
     <h3><?= h($query->title) ?></h3>

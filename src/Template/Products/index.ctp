@@ -46,12 +46,9 @@
                 <td><?= $this->Text->truncate($product->localized_aspects, 100, ['ellipsis' => '...']); ?></td>
                 <td><?= h($product->created) ?></td>
                 <td><?= h($product->modified) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $product->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $product->id]) ?>
-                    <?= $this->Html->link(__('Generate'), ['action' => 'generate', $product->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $product->id], ['confirm' => __('Are you sure you want to delete # {0}?', $product->id)]) ?>
-                </td>
+                <?= $this->element('actions/actionsUnitProduct', [
+                    'typeId' => $product->id
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </tbody>

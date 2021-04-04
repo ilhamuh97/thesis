@@ -5,13 +5,11 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('Edit Product Type'), ['action' => 'edit', $productType->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete Product Type'), ['action' => 'delete', $productType->id], ['confirm' => __('Are you sure you want to delete # {0}?', $productType->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Product Types'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Product Type'), ['action' => 'add']) ?> </li>
-    </ul>
+    <?= $this->element('Actions/actionsView', [
+        'type' => 'Product Type',
+        'typePlural' => 'Product Type',
+        'typeId' =>  $productType->id
+    ]); ?>
 </nav>
 <div class="productTypes view large-9 medium-8 columns content">
     <h3><?= h($productType->title) ?></h3>
@@ -47,20 +45,19 @@
                 <th scope="col"><?= __('Localized Aspects') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
-            <?php foreach ($productType->products as $products): ?>
+            <?php foreach ($productType->products as $product): ?>
             <tr>
-                <td><?= h($products->id) ?></td>
-                <td><?= h($products->title) ?></td>
-                <td><?= h($products->brand) ?></td>
-                <td><?= h($products->created) ?></td>
-                <td><?= h($products->modified) ?></td>
-                <td><?= h($products->category) ?></td>
-                <td><?= h($products->localized_aspects) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['controller' => 'Products', 'action' => 'view', $products->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['controller' => 'Products', 'action' => 'edit', $products->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['controller' => 'Products', 'action' => 'delete', $products->id], ['confirm' => __('Are you sure you want to delete # {0}?', $products->id)]) ?>
-                </td>
+                <td><?= h($product->id) ?></td>
+                <td><?= h($product->title) ?></td>
+                <td><?= h($product->brand) ?></td>
+                <td><?= h($product->created) ?></td>
+                <td><?= h($product->modified) ?></td>
+                <td><?= h($product->category) ?></td>
+                <td><?= h($product->localized_aspects) ?></td>
+                <?= $this->element('Actions/actionsUnitProduct', [
+                    'typeId' => $product->id,
+                    'controllerName' => 'Products'
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </table>

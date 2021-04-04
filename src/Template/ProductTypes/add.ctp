@@ -5,10 +5,10 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('List Product Types'), ['action' => 'index']) ?></li>
-    </ul>
+    <?= $this->element('Actions/actionsDefault', [
+        'type' => 'ProductType',
+        'typePlural' => 'ProductTypes'
+    ]); ?>
 </nav>
 <div class="productTypes form large-9 medium-8 columns content">
     <?= $this->Form->create($productType) ?>

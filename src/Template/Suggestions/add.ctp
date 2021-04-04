@@ -5,7 +5,7 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <?= $this->element('actions', [
+    <?= $this->element('Actions/actionsDefault', [
         'type' => 'Suggestion',
         'typePlural' => 'Suggestions'
     ]); ?>

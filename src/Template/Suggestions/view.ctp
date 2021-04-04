@@ -44,17 +44,16 @@
                 <th scope="col"><?= __('Modified') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
-            <?php foreach ($suggestion->completions as $completions): ?>
+            <?php foreach ($suggestion->completions as $completion): ?>
             <tr>
-                <td><?= h($completions->id) ?></td>
-                <td><?= h($completions->title) ?></td>
-                <td><?= h($completions->created) ?></td>
-                <td><?= h($completions->modified) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['controller' => 'Completions', 'action' => 'view', $completions->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['controller' => 'Completions', 'action' => 'edit', $completions->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['controller' => 'Completions', 'action' => 'delete', $completions->id], ['confirm' => __('Are you sure you want to delete # {0}?', $completions->id)]) ?>
-                </td>
+                <td><?= h($completion->id) ?></td>
+                <td><?= h($completion->title) ?></td>
+                <td><?= h($completion->created) ?></td>
+                <td><?= h($completion->modified) ?></td>
+                <?= $this->element('Actions/actionsUnitDefault', [
+                    'typeId' => $completion->id,
+                    'controllerName' => 'Completions'
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </table>

@@ -5,7 +5,7 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <?= $this->element('actions', [
+    <?= $this->element('Actions/actionsDefault', [
         'type' => 'Suggestion',
         'typePlural' => 'Suggestions'
     ]); ?>
@@ -29,11 +29,10 @@
                 <td><?= h($suggestion->title) ?></td>
                 <td><?= h($suggestion->created) ?></td>
                 <td><?= h($suggestion->modified) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $suggestion->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $suggestion->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $suggestion->id], ['confirm' => __('Are you sure you want to delete # {0}?', $suggestion->id)]) ?>
-                </td>
+                <?= $this->element('Actions/actionsUnitDefault', [
+                    'typeId' => $suggestion->id,
+                    'controllerName' => 'Suggestions'
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </tbody>

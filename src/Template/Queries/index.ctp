@@ -5,7 +5,7 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <?= $this->element('actions', [
+    <?= $this->element('Actions/actionsDefault', [
         'type' => 'Query',
         'typePlural' => 'Queries'
     ]); ?>
@@ -29,11 +29,10 @@
                 <td><?= h($query->title) ?></td>
                 <td><?= h($query->created) ?></td>
                 <td><?= h($query->modified) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $query->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $query->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $query->id], ['confirm' => __('Are you sure you want to delete # {0}?', $query->id)]) ?>
-                </td>
+                <?= $this->element('Actions/actionsUnitDefault', [
+                    'typeId' => $query->id,
+                    'controllerName' => 'Queries'
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </tbody>

@@ -5,10 +5,10 @@
  */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('New Product Type'), ['action' => 'add']) ?></li>
-    </ul>
+    <?= $this->element('Actions/actionsDefault', [
+        'type' => 'ProductType',
+        'typePlural' => 'ProductTypes'
+    ]); ?>
 </nav>
 <div class="productTypes index large-9 medium-8 columns content">
     <h3><?= __('Product Types') ?></h3>
@@ -39,11 +39,10 @@
                 <td><?= h($productType->title) ?></td>
                 <td><?= h($productType->created) ?></td>
                 <td><?= h($productType->modified) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $productType->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $productType->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $productType->id], ['confirm' => __('Are you sure you want to delete # {0}?', $productType->id)]) ?>
-                </td>
+                <?= $this->element('Actions/actionsUnitDefault', [
+                    'typeId' => $productType->id,
+                    'controllerName' => 'ProductTypes'
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </tbody>

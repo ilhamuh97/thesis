@@ -63,11 +63,10 @@
                 <td><?= h($completions->title) ?></td>
                 <td><?= h($completions->created) ?></td>
                 <td><?= h($completions->modified) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['controller' => 'Completions', 'action' => 'view', $completions->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['controller' => 'Completions', 'action' => 'edit', $completions->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['controller' => 'Completions', 'action' => 'delete', $completions->id], ['confirm' => __('Are you sure you want to delete {0}?', $completions->title)]) ?>
-                </td>
+                <?= $this->element('Actions/actionsUnitDefault', [
+                    'typeId' => $completions->id,
+                    'controllerName' => 'Completions'
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -89,11 +88,10 @@
                 <td><?= h($product_type->title) ?></td>
                 <td><?= h($product_type->created) ?></td>
                 <td><?= h($product_type->modified) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['controller' => 'Product_types', 'action' => 'view', $product_type->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['controller' => 'Product_types', 'action' => 'edit', $product_type->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['controller' => 'Product_types', 'action' => 'delete', $product_type->id], ['confirm' => __('Are you sure you want to delete {0}?', $completions->title)]) ?>
-                </td>
+                <?= $this->element('Actions/actionsUnitDefault', [
+                    'typeId' => $product_type->id,
+                    'controllerName' => 'ProductTypes'
+                ]); ?>
             </tr>
             <?php endforeach; ?>
         </table>
