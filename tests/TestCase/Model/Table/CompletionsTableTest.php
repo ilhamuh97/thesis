@@ -73,11 +73,11 @@ class CompletionsTableTest extends TestCase
     }
 
     /**
-     * Test beforeSave method
+     * Test buildRules method
      *
      * @return void
      */
-    public function testBeforeSave()
+    public function testBuildRules()
     {
         $this->markTestIncomplete('Not implemented yet.');
     }

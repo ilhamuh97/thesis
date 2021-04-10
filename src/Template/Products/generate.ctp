@@ -15,8 +15,12 @@
     </ul>
 </nav>
 <div class="products form large-9 medium-8 columns content">
-    <h3><?= h($readable_product->title) ?></h3>
+    <h3><?= __('Individual Completion Generator') ?></h3>
     <table class="vertical-table">
+        <tr>
+            <th scope="row"><?= __('Id') ?></th>
+            <td><?= $this->Number->format($readable_product->id) ?></td>
+        </tr>
         <tr>
             <th scope="row"><?= __('Title') ?></th>
             <td><?= h($readable_product->title) ?></td>
@@ -30,10 +34,6 @@
             <td><?= h(implode(', ', $readable_product->categories)) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Id') ?></th>
-            <td><?= $this->Number->format($readable_product->id) ?></td>
-        </tr>
-        <tr>
             <th scope="row"><?= __('Created') ?></th>
             <td><?= h($readable_product->created) ?></td>
         </tr>
@@ -44,7 +44,7 @@
     </table>
     <?= $this->Form->create($product) ?>
     <fieldset>
-        <legend><?= __('Generate Suggestions') ?></legend>
+        <legend><?= __('Generate Completions') ?></legend>
         <?php
             echo $this->Form->control('product_type');
             echo $this->Form->control('selected_attributes._ids', ['options' => $readable_product->attributes]);

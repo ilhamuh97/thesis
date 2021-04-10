@@ -91,9 +91,9 @@ class ProductsTable extends Table
 
     public function beforeSave($event, $entity, $options)
     {
-        if ($entity->completion_titles) {
+        if ($entity->completion_columns) {
             // related completion
-            $new_completions = $this->_buildCompletions($entity->completion_titles);
+            $new_completions = $this->_buildCompletions($entity->completion_columns);
             foreach ($new_completions as $completion) {
                 array_push($entity->completions, $completion);
             }
@@ -101,36 +101,47 @@ class ProductsTable extends Table
         
         if ($entity->product_type_titles) {
             // related completion
-            print_r($entity->product_type_titles);
             $new_product_type_titles = $this->_buildProductTypes($entity->product_type_titles);
             foreach ($new_product_type_titles as $product_type) {
                 array_push($entity->product_types, $product_type);
             }
         }
     }
-    protected function _buildCompletions($completion_titles)
+    protected function _buildCompletions($completion_columns)
     {
-        // remove duplication
-        $completion_titles = array_unique($completion_titles);
+        // remove duplication of titles
+        $unique = [];
+        foreach ($completion_columns as $key=>$item) {
+            if (in_array($item['title'], $unique)) {
+                unset($completion_columns[$key]);
+            } else {
+                $unique[] = $item['title'];
+            }
+        }
+        //get the completion titles
+        $completion_titles = [];
+        foreach ($completion_columns as $column) {
+            $completion_titles[] = $column['title'];
+        }
         $out = [];
         $query = $this->Completions->find()
             ->where(['Completions.title IN' => $completion_titles]);
 
-
-        // Remove existing completion titles from the list of new tags.
+        // Remove existing completion titles from the list.
         foreach ($query->extract('title') as $existing) {
-            $index = array_search($existing, $completion_titles);
-            if ($index !== false) {
-                unset($completion_titles[$index]);
+            foreach ($completion_columns as $key=>$item) {
+                if ($item['title'] == $existing) {
+                    unset($completion_columns[$key]);
+                }
             }
         }
-        // Add existing completion titles.
+        // Add existing completions.
         foreach ($query as $completion) {
             $out[] = $completion;
         }
-        // Add new completion titles.
-        foreach ($completion_titles as $completion) {
-            $out[] = $this->Completions->newEntity(['title' => $completion]);
+        // Add new completions.
+        foreach ($completion_columns as $column) {
+            $out[] = $this->Completions->newEntity(['title' => $column['title'], 'type' => $column['type']]);
         }
 
         return $out;

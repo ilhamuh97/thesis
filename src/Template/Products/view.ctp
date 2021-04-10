@@ -53,6 +53,7 @@
             <tr>
                 <th scope="col"><?= __('Id') ?></th>
                 <th scope="col"><?= __('Title') ?></th>
+                <th scope="col"><?= __('Type') ?></th>
                 <th scope="col"><?= __('Created') ?></th>
                 <th scope="col"><?= __('Modified') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
@@ -61,6 +62,7 @@
             <tr>
                 <td><?= h($completions->id) ?></td>
                 <td><?= h($completions->title) ?></td>
+                <td><?= h($completions->type) ?></td>
                 <td><?= h($completions->created) ?></td>
                 <td><?= h($completions->modified) ?></td>
                 <?= $this->element('Actions/actionsUnitDefault', [

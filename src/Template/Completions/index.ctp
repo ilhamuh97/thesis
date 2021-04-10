@@ -27,6 +27,7 @@
             <tr>
                 <th scope="col"><?= $this->Paginator->sort('id') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('title') ?></th>
+                <th scope="col"><?= $this->Paginator->sort('type') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('created') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('modified') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
@@ -37,6 +38,7 @@
             <tr>
                 <td><?= $this->Number->format($completion->id) ?></td>
                 <td><?= h($completion->title) ?></td>
+                <td><?= h($completion->type) ?></td>
                 <td><?= h($completion->created) ?></td>
                 <td><?= h($completion->modified) ?></td>
                 <?= $this->element('Actions/actionsUnitDefault', [

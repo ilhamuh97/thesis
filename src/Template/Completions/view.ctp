@@ -15,12 +15,16 @@
     <h3><?= h($completion->title) ?></h3>
     <table class="vertical-table">
         <tr>
+            <th scope="row"><?= __('Id') ?></th>
+            <td><?= $this->Number->format($completion->id) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Title') ?></th>
             <td><?= h($completion->title) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Id') ?></th>
-            <td><?= $this->Number->format($completion->id) ?></td>
+            <th scope="row"><?= __('Type') ?></th>
+            <td><?= h($completion->type) ?></td>
         </tr>
         <tr>
             <th scope="row"><?= __('Created') ?></th>

@@ -7,9 +7,10 @@ use Cake\ORM\Entity;
  * Completion Entity
  *
  * @property int $id
- * @property string $title
+ * @property string|null $title
  * @property \Cake\I18n\FrozenTime|null $created
  * @property \Cake\I18n\FrozenTime|null $modified
+ * @property string|null $type
  *
  * @property \App\Model\Entity\Product[] $products
  * @property \App\Model\Entity\Suggestion[] $suggestions
@@ -29,6 +30,7 @@ class Completion extends Entity
         'title' => true,
         'created' => true,
         'modified' => true,
+        'type' => true,
         'products' => true,
         'suggestions' => true,
     ];

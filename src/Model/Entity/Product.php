@@ -33,7 +33,7 @@ class Product extends Entity
         'category' => true,
         'localized_aspects' => true,
         'completions' => true,
-        'completion_titles' => true,
+        'completion_columns' => true,
         'product_types' => true,
         'product_type_titles' => true,
     ];

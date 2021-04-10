@@ -68,13 +68,24 @@ class CompletionsTable extends Table
         $validator
             ->scalar('title')
             ->maxLength('title', 255)
-            ->requirePresence('title', 'create')
-            ->notEmptyString('title');
+            ->allowEmptyString('title')
+            ->add('title', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
+
+        $validator
+            ->scalar('type')
+            ->maxLength('type', 255)
+            ->allowEmptyString('type');
 
         return $validator;
     }
 
-    //make this table unique
+    /**
+     * Returns a rules checker object that will be used for validating
+     * application integrity.
+     *
+     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+     * @return \Cake\ORM\RulesChecker
+     */
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->isUnique(['title']));

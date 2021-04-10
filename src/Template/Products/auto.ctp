@@ -11,7 +11,7 @@
     ]); ?>
 </nav>
 <div class="products index large-9 medium-8 columns content">
-    <h3><?= __('Generate Completions for Mutliple Products') ?></h3>
+    <h3><?= __('Multiple Completion Generator') ?></h3>
     <?= $this->Form->create($products) ?>
     <fieldset>
         <legend><?= __('Generate Suggestions') ?></legend>

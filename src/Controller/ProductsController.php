@@ -106,7 +106,7 @@ class ProductsController extends AppController
                     }
                     // decode localized aspects, make categories as an array, and unset unneccessary
                     $readable_product = $this->beautify_product($product);
-                    $completion_entities['completion_titles'] = []; //declare empty completions_enitities
+                    $completion_entities['completion_columns'] = []; //declare empty completions_enitities
                     // get attributes compared to recommended atts
                     $selected_attributes = [];
                     $selected_attributes_combinations = [];
@@ -116,7 +116,10 @@ class ProductsController extends AppController
                         $value = $result[1];
                         if (in_array(mb_strtolower($key), $recommended_attributes)) {
                             if (str_contains($value, '/')) {
-                                $selected_attributes[$key] = explode('/', $value);
+                                $newArray = explode('/', $value);
+                                foreach ($newArray as $splittedAttribute) {
+                                    $selected_attributes[$key][] = trim($splittedAttribute);
+                                }
                             } else {
                                 $selected_attributes[$key] = array($value);
                             }
@@ -133,15 +136,20 @@ class ProductsController extends AppController
                                     $selected_attributes_combinations = join(' ', $result);
                                     // remove multiple whitespaces, str to lower, and remove whitescpace before and after sentence
                                     $end_combination = trim(preg_replace('/\s+/', ' ', mb_strtolower($product_type_title . ' ' .$selected_attributes_combinations)));
-                                    array_push($completion_entities['completion_titles'], $end_combination);
+                                    $completion_columns = ['title'=>$end_combination, 'type'=>"attributes"];
+                                    array_push($completion_entities['completion_columns'], $completion_columns);
                                 }
                             }
                         }
                     }
                     foreach ($readable_product['categories'] as $category) {
                         $title =  mb_strtolower($product_type_title . ' - ' . $category);
-                        array_push($completion_entities['completion_titles'], $title);
+                        $completion_columns = ['title'=>$title, 'type'=>"category"];
+                        array_push($completion_entities['completion_columns'], $completion_columns);
                     }
+                    //input completion from only product type itself
+                    $completion_columns = ['title'=>$product_type_title, 'type'=>"product type"];
+                    array_push($completion_entities['completion_columns'], $completion_columns);
                     $product = $this->Products->patchEntity($product, $completion_entities);
                     if ($this->Products->save($product)) {
                         $message = 'The products have been saved.';
@@ -149,12 +157,20 @@ class ProductsController extends AppController
                         $saved = false;
                         $idsError[] = $product->id;
                     }
+                    if ($product->id == 1352) {
+                        if ($this->Products->save($product)) {
+                            $message = 'The products have been saved.';
+                        } else {
+                            $saved = false;
+                            $idsError[] = $product->id;
+                        }
+                    }
                 }
             }
             if ($saved) {
                 $this->Flash->success(__($message));
             } else {
-                $message = 'The product type ids "' . join(', ', $idsError) . '" could not be saved. Please, try again.';
+                $message = 'The product ids "' . join(', ', $idsError) . '" could not be saved. Please, try again.';
                 $this->Flash->error(__($message));
             }
         }
@@ -259,7 +275,7 @@ class ProductsController extends AppController
             'contain' => ['Completions', 'Product_types'],
         ]);
         $readable_product = $this->beautify_product($this->Products->get($id));
-        $completion_entities['completion_titles'] = [];
+        $completion_entities['completion_columns'] = [];
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $data['product_type'] = explode(',', $data['product_type']);
@@ -271,21 +287,25 @@ class ProductsController extends AppController
                     // attribute + brand
                     $titles =  $this->build_completion($product_type, $data, $readable_product, 'attributes');
                     foreach ($titles as $title) {
-                        array_push($completion_entities['completion_titles'], $title);
+                        $completion_columns = ['title'=>$title, 'type'=>"attributes"];
+                        array_push($completion_entities['completion_columns'], $completion_columns);
                     }
                 } elseif (!empty($data['brand'])) {
                     // only brand
                     $title = mb_strtolower($product_type . ' ' .  $data['brand']);
-                    array_push($completion_entities['completion_titles'], $title);
+                    $completion_columns = ['title'=>$title, 'type'=>"attributes"];
+                    array_push($completion_entities['completion_columns'], $completion_columns);
                 }
                 if ($data['categories']['_ids']) {
                     // categories "(Product type) - (category)"
                     $titles =  $this->build_completion($product_type, $data, $readable_product, 'categories');
                     foreach ($titles as $title) {
-                        array_push($completion_entities['completion_titles'], $title);
+                        $completion_columns = ['title'=>$title, 'type'=>"category"];
+                        array_push($completion_entities['completion_columns'], $completion_columns);
                     }
                 }
-                array_push($completion_entities['completion_titles'], $product_type);
+                $completion_columns = ['title'=>$product_type, 'type'=>"product type"];
+                array_push($completion_entities['completion_columns'], $completion_columns);
             }
             // don't remove the owned product types
             $completion_entities['product_types']['_ids'] = [];
@@ -308,6 +328,7 @@ class ProductsController extends AppController
             $completion_entities['product_type_titles'] = $data['product_type'];
             $product = $this->Products->patchEntity($product, $completion_entities);
             //save completions
+            // print_r($product);
             if ($this->Products->save($product)) {
                 $this->Flash->success(__('The product has been saved.'));
                 return $this->redirect(['action' => 'index']);
@@ -354,7 +375,7 @@ class ProductsController extends AppController
 
     protected function neglect($item, $type)
     {
-        $neglections = ["nicht zutreffend", "unbekannt", "markenlos", null, "nein", "no-name", "nobrand", "unbranded", "unbranded/generic", "n/a", "null"];
+        $neglections = ["nicht zutreffend", "unbekannt",  null, "nein", "nobrand", "unbranded/generic", "n/a", "null"];
         switch ($type) {
             case 'attributes':
                 $result = [];
@@ -394,7 +415,10 @@ class ProductsController extends AppController
                 foreach ($data['selected_attributes']['_ids'] as $attribute_id) {
                     $result = explode(' : ', $product['attributes'][$attribute_id]);
                     if (str_contains($result[1], '/')) {
-                        $selected_attributes[$result[0]] = explode('/', $result[1]);
+                        $newArray = explode('/', $result[1]);
+                        foreach ($newArray as $splittedAttribute) {
+                            $selected_attributes[$result[0]][] = trim($splittedAttribute);
+                        }
                     } else {
                         $selected_attributes[$result[0]] = array($result[1]);
                     }
