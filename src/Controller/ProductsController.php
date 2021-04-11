@@ -142,11 +142,6 @@ class ProductsController extends AppController
                             }
                         }
                     }
-                    foreach ($readable_product['categories'] as $category) {
-                        $title =  mb_strtolower($product_type_title . ' - ' . $category);
-                        $completion_columns = ['title'=>$title, 'type'=>"category"];
-                        array_push($completion_entities['completion_columns'], $completion_columns);
-                    }
                     //input completion from only product type itself
                     $completion_columns = ['title'=>$product_type_title, 'type'=>"product type"];
                     array_push($completion_entities['completion_columns'], $completion_columns);
@@ -285,7 +280,37 @@ class ProductsController extends AppController
                 $product_type = trim($product_type);
                 if ($data['selected_attributes']['_ids']) {
                     // attribute + brand
-                    $titles =  $this->build_completion($product_type, $data, $readable_product, 'attributes');
+                    $selected_attributes = [];
+                    $titles = [];
+                    // trim selected attributes
+                    foreach ($data['selected_attributes']['_ids'] as $attribute_id) {
+                        $result = explode(' : ', $readable_product['attributes'][$attribute_id]);
+                        if (str_contains($result[1], '/')) {
+                            $newArray = explode('/', $result[1]);
+                            foreach ($newArray as $splittedAttribute) {
+                                $selected_attributes[$result[0]][] = trim($splittedAttribute);
+                            }
+                        } else {
+                            $selected_attributes[$result[0]] = array($result[1]);
+                        }
+                    }
+                    if ($data['brand']) {
+                        $selected_attributes['brand'] = array($data['brand']);
+                    }
+                    // get combinations min 1 and max 3
+                    $combinations = $this->combinations($selected_attributes, 1, 3);
+                    sort($combinations);
+                    foreach ($combinations as $combination) {
+                        // get permuations
+                        $permutations = $this->permutations($combination);
+                        foreach ($permutations as $p) {
+                            foreach ($this->array_cartesian_product($p) as $result) {
+                                $selected_attributes_combinations = join(' ', $result);
+                                $end_combination = mb_strtolower($product_type . ' ' .$selected_attributes_combinations);
+                                array_push($titles, $end_combination);
+                            }
+                        }
+                    }
                     foreach ($titles as $title) {
                         $completion_columns = ['title'=>$title, 'type'=>"attributes"];
                         array_push($completion_entities['completion_columns'], $completion_columns);
@@ -295,14 +320,6 @@ class ProductsController extends AppController
                     $title = mb_strtolower($product_type . ' ' .  $data['brand']);
                     $completion_columns = ['title'=>$title, 'type'=>"attributes"];
                     array_push($completion_entities['completion_columns'], $completion_columns);
-                }
-                if ($data['categories']['_ids']) {
-                    // categories "(Product type) - (category)"
-                    $titles =  $this->build_completion($product_type, $data, $readable_product, 'categories');
-                    foreach ($titles as $title) {
-                        $completion_columns = ['title'=>$title, 'type'=>"category"];
-                        array_push($completion_entities['completion_columns'], $completion_columns);
-                    }
                 }
                 $completion_columns = ['title'=>$product_type, 'type'=>"product type"];
                 array_push($completion_entities['completion_columns'], $completion_columns);
@@ -347,12 +364,10 @@ class ProductsController extends AppController
     {
         $localized_aspects = explode(';', $product['localized_aspects']);
         $attributes = $this->decode_localized_aspects($localized_aspects);
-        $product['categories'] = explode('|', $product['category']);
         $product['attributes'] = $this->neglect($attributes, 'attributes');
         $product['brand'] = $this->neglect($product['brand'], 'brand');
         //remove unneccessary
         unset($product['localized_aspects']);
-        unset($product['category']);
         return $product;
     }
 
@@ -400,63 +415,6 @@ class ProductsController extends AppController
                 return $item;
                 break;
         }
-    }
-
-    /**
-     * build word suggestions
-     */
-    protected function build_completion($product_type, $data, $product, $completion_type = null)
-    {
-        switch ($completion_type) {
-            case 'attributes':
-                $selected_attributes = [];
-                $suggest['titles'] = [];
-                // trim selected attributes
-                foreach ($data['selected_attributes']['_ids'] as $attribute_id) {
-                    $result = explode(' : ', $product['attributes'][$attribute_id]);
-                    if (str_contains($result[1], '/')) {
-                        $newArray = explode('/', $result[1]);
-                        foreach ($newArray as $splittedAttribute) {
-                            $selected_attributes[$result[0]][] = trim($splittedAttribute);
-                        }
-                    } else {
-                        $selected_attributes[$result[0]] = array($result[1]);
-                    }
-                }
-                if ($data['brand']) {
-                    $selected_attributes['brand'] = array($data['brand']);
-                }
-                // get combinations min 1 and max 3
-                $combinations = $this->combinations($selected_attributes, 1, 3);
-                sort($combinations);
-                foreach ($combinations as $combination) {
-                    // get permuations
-                    $permutations = $this->permutations($combination);
-                    foreach ($permutations as $p) {
-                        foreach ($this->array_cartesian_product($p) as $result) {
-                            $selected_attributes_combinations = join(' ', $result);
-                            $end_combination = mb_strtolower($product_type . ' ' .$selected_attributes_combinations);
-                            array_push($suggest['titles'], $end_combination);
-                        }
-                    }
-                }
-                return $suggest['titles'];
-                break;
-            
-            case 'categories':
-                $suggest['titles'] = [];
-                // trim categories
-                foreach ($data['categories']['_ids'] as $category_id) {
-                    $title =  mb_strtolower($product_type . ' - ' . $product['categories'][$category_id]);
-                    array_push($suggest['titles'], $title);
-                }
-                return $suggest['titles'];
-                break;
-            
-            default:
-                return null;
-                break;
-        };
     }
 
     /**
