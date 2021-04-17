@@ -34,14 +34,6 @@
             <td><?= h($product->category_id) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Brand') ?></th>
-            <td><?= h($product->brand) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Localized Aspects') ?></th>
-            <td><?= h($product->localized_aspects) ?></td>
-        </tr>
-        <tr>
             <th scope="row"><?= __('Inferred Localized Aspects') ?></th>
             <td><?= h($product->inferred_localized_aspects) ?></td>
         </tr>
