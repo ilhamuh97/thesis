@@ -8,11 +8,15 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property string $title
- * @property string|null $brand
+ * @property string|null $category_flow
+ * @property int|null $category_id
+ * @property string|null $inferred_localized_aspects
  * @property \Cake\I18n\FrozenTime|null $created
  * @property \Cake\I18n\FrozenTime|null $modified
- * @property string|null $category
- * @property string|null $localized_aspects
+ *
+ * @property \App\Model\Entity\Category $category
+ * @property \App\Model\Entity\Completion[] $completions
+ * @property \App\Model\Entity\ProductType[] $product_types
  */
 class Product extends Entity
 {
@@ -27,11 +31,12 @@ class Product extends Entity
      */
     protected $_accessible = [
         'title' => true,
-        'brand' => true,
+        'category_flow' => true,
+        'category_id' => true,
+        'inferred_localized_aspects' => true,
         'created' => true,
         'modified' => true,
         'category' => true,
-        'localized_aspects' => true,
         'completions' => true,
         'completion_columns' => true,
         'product_types' => true,

@@ -39,8 +39,8 @@ class ProductTypesFixture extends TestFixture
             [
                 'id' => 1,
                 'title' => 'Lorem ipsum dolor sit amet',
-                'created' => '2021-03-08 13:48:49',
-                'modified' => '2021-03-08 13:48:49',
+                'created' => '2021-04-12 11:07:02',
+                'modified' => '2021-04-12 11:07:02',
             ],
         ];
         parent::init();

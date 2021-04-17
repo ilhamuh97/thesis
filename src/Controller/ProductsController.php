@@ -57,7 +57,7 @@ class ProductsController extends AppController
             // get whole sent data
             $data = $this->request->getData();
             // TODO: get recommended Attributes based on category
-            $recommended_attributes = ['farbe', 'größe'];
+            $recommended_attributes = ['farbe', 'größe', 'marke', 'brand'];
             $message = "";
             $saved = true;
             $idsError = [];
@@ -76,7 +76,7 @@ class ProductsController extends AppController
                 ));
                 // remove non alphabetic symbols
                 $product_type_title = preg_replace("/[^A-Za-z0-9öÖäAüÜ \_]/", '', $product_type_title);
-                $product_type_title = trim($product_type_title);
+                $product_type_title = mb_strtolower(trim($product_type_title));
                 // loop every products
                 foreach ($products as $product) {
                     // don't remove the owned product types
@@ -124,6 +124,10 @@ class ProductsController extends AppController
                                 $selected_attributes[$key] = array($value);
                             }
                         }
+                    }
+                    // merge brand and marke values into one key
+                    if (array_key_exists('Marke', $selected_attributes) && array_key_exists('Brand', $selected_attributes)) {
+                        $selected_attributes = $this->merge_two_keys('Marke', 'Brand', $selected_attributes);
                     }
                     // get combinations min 1 and max 3
                     if ($selected_attributes) {
@@ -274,28 +278,32 @@ class ProductsController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $data['product_type'] = explode(',', $data['product_type']);
-            foreach ($data['product_type'] as $product_type) {
+            foreach ($data['product_type'] as $index => $product_type) {
                 // remove all non alphabet numeric type
                 $product_type = preg_replace("/[^A-Za-z0-9öÖäAüÜ \_]/", '', $product_type);
-                $product_type = trim($product_type);
+                $product_type = mb_strtolower(trim($product_type));
+                $data['product_type'][$index] = trim($product_type);
                 if ($data['selected_attributes']['_ids']) {
                     // attribute + brand
                     $selected_attributes = [];
                     $titles = [];
                     // trim selected attributes
                     foreach ($data['selected_attributes']['_ids'] as $attribute_id) {
-                        $result = explode(' : ', $readable_product['attributes'][$attribute_id]);
-                        if (str_contains($result[1], '/')) {
-                            $newArray = explode('/', $result[1]);
-                            foreach ($newArray as $splittedAttribute) {
-                                $selected_attributes[$result[0]][] = trim($splittedAttribute);
+                        $result = explode(':', $readable_product['attributes'][$attribute_id]);
+                        $key = trim($result[0]);
+                        $value = trim($result[1]);
+                        // if multiple values in one key
+                        if (str_contains($value, '/')) {
+                            $newValues = explode('/', $value);
+                            foreach ($newValues as $splittedValues) {
+                                $selected_attributes[$key][] = trim($splittedValues);
                             }
                         } else {
-                            $selected_attributes[$result[0]] = array($result[1]);
-                        }
+                            $selected_attributes[$key] = array($value);
+                        }                        
                     }
-                    if ($data['brand']) {
-                        $selected_attributes['brand'] = array($data['brand']);
+                    if (array_key_exists('Marke', $selected_attributes) && array_key_exists('Brand', $selected_attributes)) {
+                        $selected_attributes = $this->merge_two_keys('Marke', 'Brand', $selected_attributes);
                     }
                     // get combinations min 1 and max 3
                     $combinations = $this->combinations($selected_attributes, 1, 3);
@@ -315,16 +323,11 @@ class ProductsController extends AppController
                         $completion_columns = ['title'=>$title, 'type'=>"attributes"];
                         array_push($completion_entities['completion_columns'], $completion_columns);
                     }
-                } elseif (!empty($data['brand'])) {
-                    // only brand
-                    $title = mb_strtolower($product_type . ' ' .  $data['brand']);
-                    $completion_columns = ['title'=>$title, 'type'=>"attributes"];
-                    array_push($completion_entities['completion_columns'], $completion_columns);
-                }
+                } 
                 $completion_columns = ['title'=>$product_type, 'type'=>"product type"];
                 array_push($completion_entities['completion_columns'], $completion_columns);
             }
-            // don't remove the owned product types
+            // keep the owned product types
             $completion_entities['product_types']['_ids'] = [];
             if ($product->product_types) {
                 $ids = [];
@@ -333,7 +336,7 @@ class ProductsController extends AppController
                 }
                 $completion_entities['product_types']['_ids'] = $ids;
             }
-            // don't remove the owned completions
+            // keep the owned completions
             $completion_entities['completions']['_ids'] = [];
             if ($product->completions) {
                 $ids = [];
@@ -344,8 +347,8 @@ class ProductsController extends AppController
             }
             $completion_entities['product_type_titles'] = $data['product_type'];
             $product = $this->Products->patchEntity($product, $completion_entities);
+            $this->console_log($completion_entities);
             //save completions
-            // print_r($product);
             if ($this->Products->save($product)) {
                 $this->Flash->success(__('The product has been saved.'));
                 return $this->redirect(['action' => 'index']);
@@ -363,11 +366,11 @@ class ProductsController extends AppController
     protected function beautify_product($product)
     {
         $localized_aspects = explode(';', $product['localized_aspects']);
-        $attributes = $this->decode_localized_aspects($localized_aspects);
+        $inferred_localized_aspects = explode(';', $product['inferred_localized_aspects']);
+        $attributes = $this->decode_localized_aspects($inferred_localized_aspects);
         $product['attributes'] = $this->neglect($attributes, 'attributes');
-        $product['brand'] = $this->neglect($product['brand'], 'brand');
         //remove unneccessary
-        unset($product['localized_aspects']);
+        unset($product['inferred_localized_aspects']);
         return $product;
     }
 
@@ -391,30 +394,14 @@ class ProductsController extends AppController
     protected function neglect($item, $type)
     {
         $neglections = ["nicht zutreffend", "unbekannt",  null, "nein", "nobrand", "unbranded/generic", "n/a", "null"];
-        switch ($type) {
-            case 'attributes':
-                $result = [];
-                foreach ($item as $i) {
-                    $value = explode(' : ', $i);
-                    if (!in_array(mb_strtolower($value[1]), $neglections)) {
-                        array_push($result, $i);
-                    }
-                }
-                return $result;
-                break;
-            
-            case 'brand':
-                $result = "";
-                if (!in_array(mb_strtolower($item), $neglections)) {
-                    $result = $item;
-                }
-                return $result;
-                break;
-            
-            default:
-                return $item;
-                break;
+        $result = [];
+        foreach ($item as $i) {
+            $value = explode(':' , $i);
+            if (!in_array(mb_strtolower(trim($value[1])), $neglections)) {
+                array_push($result, $i);
+            }
         }
+        return $result;
     }
 
     /**
@@ -444,6 +431,16 @@ class ProductsController extends AppController
             }
         }
         return $result;
+    }
+
+    protected function merge_two_keys($mainKey, $mergedKey, $array){
+        if(!empty($array[$mergedKey]) && !empty($array[$mergedKey])){
+            foreach ($array[$mergedKey] as $value) {
+                $array[$mainKey][] = $value;
+            }
+        }
+        unset($array[$mergedKey]);
+        return $array;
     }
 
 

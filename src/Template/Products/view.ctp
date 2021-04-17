@@ -18,24 +18,32 @@
     <h3><?= h($product->title) ?></h3>
     <table class="vertical-table">
         <tr>
+            <th scope="row"><?= __('Id') ?></th>
+            <td><?= $this->Number->format($product->id) ?></td>
+        </tr>
+        <tr>
             <th scope="row"><?= __('Title') ?></th>
             <td><?= h($product->title) ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><?= __('Category Flow') ?></th>
+            <td><?= h($product->category_flow) ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><?= __('Category Id') ?></th>
+            <td><?= h($product->category_id) ?></td>
         </tr>
         <tr>
             <th scope="row"><?= __('Brand') ?></th>
             <td><?= h($product->brand) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Category') ?></th>
-            <td><?= h($product->category) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Localized_Aspects') ?></th>
+            <th scope="row"><?= __('Localized Aspects') ?></th>
             <td><?= h($product->localized_aspects) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Id') ?></th>
-            <td><?= $this->Number->format($product->id) ?></td>
+            <th scope="row"><?= __('Inferred Localized Aspects') ?></th>
+            <td><?= h($product->inferred_localized_aspects) ?></td>
         </tr>
         <tr>
             <th scope="row"><?= __('Created') ?></th>

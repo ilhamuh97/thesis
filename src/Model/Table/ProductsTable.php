@@ -9,7 +9,9 @@ use Cake\Validation\Validator;
 /**
  * Products Model
  *
- * @property &\Cake\ORM\Association\BelongsToMany $Completions
+ * @property \App\Model\Table\CategoriesTable&\Cake\ORM\Association\BelongsTo $Categories
+ * @property \App\Model\Table\CompletionsTable&\Cake\ORM\Association\BelongsToMany $Completions
+ * @property &\Cake\ORM\Association\BelongsToMany $ProductTypes
  *
  * @method \App\Model\Entity\Product get($primaryKey, $options = [])
  * @method \App\Model\Entity\Product newEntity($data = null, array $options = [])
@@ -40,12 +42,14 @@ class ProductsTable extends Table
 
         $this->addBehavior('Timestamp');
 
+        $this->belongsTo('Categories', [
+            'foreignKey' => 'category_id',
+        ]);
         $this->belongsToMany('Completions', [
             'foreignKey' => 'product_id',
             'targetForeignKey' => 'completion_id',
             'joinTable' => 'completions_products',
         ]);
-
         $this->belongsToMany('product_types', [
             'foreignKey' => 'product_id',
             'targetForeignKey' => 'product_type_id',
@@ -72,19 +76,13 @@ class ProductsTable extends Table
             ->notEmptyString('title');
 
         $validator
-            ->scalar('brand')
-            ->maxLength('brand', 255)
-            ->allowEmptyString('brand');
+            ->scalar('category_flow')
+            ->maxLength('category_flow', 255)
+            ->allowEmptyString('category_flow');
 
         $validator
-            ->scalar('category')
-            ->maxLength('category', 255)
-            ->allowEmptyString('category');
-
-        $validator
-            ->scalar('localized_aspects')
-            ->maxLength('localized_aspects', 4294967295)
-            ->allowEmptyString('localized_aspects');
+            ->scalar('inferred_localized_aspects')
+            ->allowEmptyString('inferred_localized_aspects');
 
         return $validator;
     }

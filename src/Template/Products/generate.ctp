@@ -26,8 +26,12 @@
             <td><?= h($readable_product->title) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Brand') ?></th>
-            <td><?= h($readable_product->brand) ?></td>
+            <th scope="row"><?= __('Category Flow') ?></th>
+            <td><?= h($readable_product->category_flow) ?></td>
+        </tr>
+        <tr>
+            <th scope="row"><?= __('Category Id') ?></th>
+            <td><?= h($readable_product->category_id) ?></td>
         </tr>
         <tr>
             <th scope="row"><?= __('Created') ?></th>
@@ -44,7 +48,6 @@
         <?php
             echo $this->Form->control('product_type');
             echo $this->Form->control('selected_attributes._ids', ['options' => $readable_product->attributes]);
-            echo $this->Form->control('brand', ['required' => false, 'value'=>$readable_product->brand]);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

@@ -1,7 +1,7 @@
 <?php
 use Migrations\AbstractMigration;
 
-class AddLocalizedAspectsToProducts extends AbstractMigration
+class RemoveLocalizedAspectsFromProducts extends AbstractMigration
 {
     /**
      * Change Method.
@@ -13,11 +13,7 @@ class AddLocalizedAspectsToProducts extends AbstractMigration
     public function change()
     {
         $table = $this->table('products');
-        $table->addColumn('localized_aspects', 'string', [
-            'default' => null,
-            'limit' => 255,
-            'null' => true,
-        ]);
+        $table->removeColumn('localized_aspects');
         $table->update();
     }
 }
