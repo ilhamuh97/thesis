@@ -10,7 +10,6 @@ use Cake\Validation\Validator;
  * Completions Model
  *
  * @property \App\Model\Table\ProductsTable&\Cake\ORM\Association\BelongsToMany $Products
- * @property \App\Model\Table\SuggestionsTable&\Cake\ORM\Association\BelongsToMany $Suggestions
  *
  * @method \App\Model\Entity\Completion get($primaryKey, $options = [])
  * @method \App\Model\Entity\Completion newEntity($data = null, array $options = [])
@@ -45,11 +44,6 @@ class CompletionsTable extends Table
             'foreignKey' => 'completion_id',
             'targetForeignKey' => 'product_id',
             'joinTable' => 'completions_products',
-        ]);
-        $this->belongsToMany('Suggestions', [
-            'foreignKey' => 'completion_id',
-            'targetForeignKey' => 'suggestion_id',
-            'joinTable' => 'completions_suggestions',
         ]);
     }
 

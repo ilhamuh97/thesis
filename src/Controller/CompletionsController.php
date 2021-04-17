@@ -56,7 +56,7 @@ class CompletionsController extends AppController
     public function view($id = null)
     {
         $completion = $this->Completions->get($id, [
-            'contain' => ['Products', 'Suggestions'],
+            'contain' => ['Products'],
         ]);
 
         $this->set('completion', $completion);
@@ -80,8 +80,7 @@ class CompletionsController extends AppController
             $this->Flash->error(__('The completion could not be saved. Please, try again.'));
         }
         $products = $this->Completions->Products->find('list', ['limit' => 200]);
-        $suggestions = $this->Completions->Suggestions->find('list', ['limit' => 200]);
-        $this->set(compact('completion', 'products', 'suggestions'));
+        $this->set(compact('completion', 'products'));
     }
 
     /**
@@ -94,7 +93,7 @@ class CompletionsController extends AppController
     public function edit($id = null)
     {
         $completion = $this->Completions->get($id, [
-            'contain' => ['Products', 'Suggestions'],
+            'contain' => ['Products'],
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $completion = $this->Completions->patchEntity($completion, $this->request->getData());
@@ -106,8 +105,7 @@ class CompletionsController extends AppController
             $this->Flash->error(__('The completion could not be saved. Please, try again.'));
         }
         $products = $this->Completions->Products->find('list', ['limit' => 200]);
-        $suggestions = $this->Completions->Suggestions->find('list', ['limit' => 200]);
-        $this->set(compact('completion', 'products', 'suggestions'));
+        $this->set(compact('completion', 'products'));
     }
 
     /**

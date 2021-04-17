@@ -14,7 +14,7 @@
     <h3><?= __('Multiple Completion Generator') ?></h3>
     <?= $this->Form->create($products) ?>
     <fieldset>
-        <legend><?= __('Generate Suggestions') ?></legend>
+        <legend><?= __('Generate Completions') ?></legend>
         <?php
             echo $this->Form->control('product_types._ids', ['options' => $product_types]);
         ?>

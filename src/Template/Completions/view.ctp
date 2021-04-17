@@ -60,30 +60,4 @@
         </table>
         <?php endif; ?>
     </div>
-    <div class="related">
-        <h4><?= __('Related Suggestions') ?></h4>
-        <?php if (!empty($completion->suggestions)): ?>
-        <table cellpadding="0" cellspacing="0">
-            <tr>
-                <th scope="col"><?= __('Id') ?></th>
-                <th scope="col"><?= __('Title') ?></th>
-                <th scope="col"><?= __('Created') ?></th>
-                <th scope="col"><?= __('Modified') ?></th>
-                <th scope="col" class="actions"><?= __('Actions') ?></th>
-            </tr>
-            <?php foreach ($completion->suggestions as $suggestion): ?>
-            <tr>
-                <td><?= h($suggestion->id) ?></td>
-                <td><?= h($suggestion->title) ?></td>
-                <td><?= h($suggestion->created) ?></td>
-                <td><?= h($suggestion->modified) ?></td>
-                <?= $this->element('Actions/actionsUnitDefault', [
-                    'typeId' => $suggestion->id,
-                    'controllerName' => 'Suggestions'
-                ]); ?>
-            </tr>
-            <?php endforeach; ?>
-        </table>
-        <?php endif; ?>
-    </div>
 </div>

@@ -14,8 +14,6 @@
 )
         ?></li>
         <li><?= $this->Html->link(__('List Completions'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Suggestions'), ['controller' => 'Suggestions', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Suggestion'), ['controller' => 'Suggestions', 'action' => 'add']) ?></li>
     </ul>
 </nav>
 <div class="completions form large-9 medium-8 columns content">
@@ -25,7 +23,6 @@
         <?php
             echo $this->Form->control('title');
             echo $this->Form->control('type');
-            echo $this->Form->control('suggestions._ids', ['options' => $suggestions]);
             echo $this->Form->control('products._ids', ['options' => $products]);
         ?>
     </fieldset>

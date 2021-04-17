@@ -13,7 +13,6 @@ use Cake\ORM\Entity;
  * @property string|null $type
  *
  * @property \App\Model\Entity\Product[] $products
- * @property \App\Model\Entity\Suggestion[] $suggestions
  */
 class Completion extends Entity
 {
@@ -32,6 +31,5 @@ class Completion extends Entity
         'modified' => true,
         'type' => true,
         'products' => true,
-        'suggestions' => true,
     ];
 }

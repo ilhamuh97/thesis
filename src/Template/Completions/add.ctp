@@ -17,7 +17,6 @@
         <?php
             echo $this->Form->control('title');
             echo $this->Form->control('type');
-            echo $this->Form->control('suggestions._ids', ['options' => $suggestions]);
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

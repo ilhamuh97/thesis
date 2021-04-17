@@ -75,7 +75,7 @@ class ProductsController extends AppController
                     'contain' => ['Completions','Product_types'],
                 ));
                 // remove non alphabetic symbols
-                $product_type_title = preg_replace("/[^A-Za-z0-9öÖäAüÜ \_]/", '', $product_type_title);
+                $product_type_title = preg_replace("/[^A-Za-z0-9öÖäAüÜß \_]/", '', $product_type_title);
                 $product_type_title = mb_strtolower(trim($product_type_title));
                 // loop every products
                 foreach ($products as $product) {
@@ -264,7 +264,7 @@ class ProductsController extends AppController
     }
 
     /**
-     * Generate Word Suggestion
+     * Generate Word Completion
      *
      * @param string|null $id Product id
      */
@@ -280,7 +280,7 @@ class ProductsController extends AppController
             $data['product_type'] = explode(',', $data['product_type']);
             foreach ($data['product_type'] as $index => $product_type) {
                 // remove all non alphabet numeric type
-                $product_type = preg_replace("/[^A-Za-z0-9öÖäAüÜ \_]/", '', $product_type);
+                $product_type = preg_replace("/[^A-Za-z0-9öÖäAüÜß \_]/", '', $product_type);
                 $product_type = mb_strtolower(trim($product_type));
                 $data['product_type'][$index] = trim($product_type);
                 if ($data['selected_attributes']['_ids']) {
@@ -300,7 +300,7 @@ class ProductsController extends AppController
                             }
                         } else {
                             $selected_attributes[$key] = array($value);
-                        }                        
+                        }
                     }
                     if (array_key_exists('Marke', $selected_attributes) && array_key_exists('Brand', $selected_attributes)) {
                         $selected_attributes = $this->merge_two_keys('Marke', 'Brand', $selected_attributes);
@@ -323,7 +323,7 @@ class ProductsController extends AppController
                         $completion_columns = ['title'=>$title, 'type'=>"attributes"];
                         array_push($completion_entities['completion_columns'], $completion_columns);
                     }
-                } 
+                }
                 $completion_columns = ['title'=>$product_type, 'type'=>"product type"];
                 array_push($completion_entities['completion_columns'], $completion_columns);
             }
@@ -396,7 +396,7 @@ class ProductsController extends AppController
         $neglections = ["nicht zutreffend", "unbekannt",  null, "nein", "nobrand", "unbranded/generic", "n/a", "null"];
         $result = [];
         foreach ($item as $i) {
-            $value = explode(':' , $i);
+            $value = explode(':', $i);
             if (!in_array(mb_strtolower(trim($value[1])), $neglections)) {
                 array_push($result, $i);
             }
@@ -433,8 +433,9 @@ class ProductsController extends AppController
         return $result;
     }
 
-    protected function merge_two_keys($mainKey, $mergedKey, $array){
-        if(!empty($array[$mergedKey]) && !empty($array[$mergedKey])){
+    protected function merge_two_keys($mainKey, $mergedKey, $array)
+    {
+        if (!empty($array[$mergedKey]) && !empty($array[$mergedKey])) {
             foreach ($array[$mergedKey] as $value) {
                 $array[$mainKey][] = $value;
             }
