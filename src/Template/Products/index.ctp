@@ -8,6 +8,7 @@
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('New Product'), ['action' => 'add']) ?></li>
+        <li><?= $this->Html->link(__('List Products'), ['action' => 'index']) ?></li>
         <li><?= $this->Html->link(__('Auto Generate'), ['action' => 'auto']) ?></li>
     </ul>
 </nav>

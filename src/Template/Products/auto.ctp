@@ -17,6 +17,7 @@
         <legend><?= __('Generate Completions') ?></legend>
         <?php
             echo $this->Form->control('product_types._ids', ['options' => $product_types]);
+            echo $this->Form->control('attributes');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

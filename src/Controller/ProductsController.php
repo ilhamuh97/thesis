@@ -56,8 +56,11 @@ class ProductsController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             // get whole sent data
             $data = $this->request->getData();
-            // TODO: get recommended Attributes based on category
-            $recommended_attributes = ['farbe', 'größe', 'marke', 'brand'];
+            // TODO: get recommended Attributes based on category directly from eBay API
+            $recommended_attributes = explode(',', $data['attributes']);
+            foreach ($recommended_attributes as $key => $value) {
+                $recommended_attributes[$key] = mb_strtolower(trim($value));
+            }
             $message = "";
             $saved = true;
             $idsError = [];
@@ -128,6 +131,9 @@ class ProductsController extends AppController
                     // merge brand and marke values into one key
                     if (array_key_exists('Marke', $selected_attributes) && array_key_exists('Brand', $selected_attributes)) {
                         $selected_attributes = $this->merge_two_keys('Marke', 'Brand', $selected_attributes);
+                    }
+                    if (array_key_exists('Geschlecht', $selected_attributes) && array_key_exists('Abteilung', $selected_attributes)) {
+                        $selected_attributes = $this->merge_two_keys('Geschlecht', 'Abteilung', $selected_attributes);
                     }
                     // get combinations min 1 and max 3
                     if ($selected_attributes) {
@@ -291,7 +297,7 @@ class ProductsController extends AppController
                     foreach ($data['selected_attributes']['_ids'] as $attribute_id) {
                         $result = explode(':', $readable_product['attributes'][$attribute_id]);
                         $key = trim($result[0]);
-                        $value = trim($result[1]);
+                        $value = mb_strtolower(trim($result[1]));
                         // if multiple values in one key
                         if (str_contains($value, '/')) {
                             $newValues = explode('/', $value);
@@ -347,7 +353,6 @@ class ProductsController extends AppController
             }
             $completion_entities['product_type_titles'] = $data['product_type'];
             $product = $this->Products->patchEntity($product, $completion_entities);
-            $this->console_log($completion_entities);
             //save completions
             if ($this->Products->save($product)) {
                 $this->Flash->success(__('The product has been saved.'));
@@ -446,7 +451,7 @@ class ProductsController extends AppController
 
 
     /**
-     * do permuation formula
+     * do permuation algorithm
      * https://stackoverflow.com/a/12749950
      */
     protected function permutations($InArray, &$ReturnArray = array(), $InProcessedArray = array())
@@ -464,7 +469,7 @@ class ProductsController extends AppController
     }
 
     /**
-     * do combination formula
+     * do combination algorithm
      * https://stackoverflow.com/a/65061503
      */
     protected function combinations($values, $minLength = 1, $maxLength = 2000)
@@ -473,7 +478,6 @@ class ProductsController extends AppController
         $size = pow(2, $count);
         $keys = array_keys($values);
         $return = [];
-
         for ($i = 0; $i < $size; $i ++) {
             $b = sprintf("%0" . $count . "b", $i);
             $out = [];
@@ -483,7 +487,6 @@ class ProductsController extends AppController
                     $out[$keys[$j]] = $values[$keys[$j]];
                 }
             }
-
             if (count($out) >= $minLength && count($out) <= $maxLength) {
                 $return[] = $out;
             }
