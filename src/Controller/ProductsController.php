@@ -82,37 +82,11 @@ class ProductsController extends AppController
                 $product_type_title = mb_strtolower(trim($product_type_title));
                 // loop every products
                 foreach ($products as $product) {
-                    // don't remove the owned product types
-                    $completion_entities['product_types']['_ids'] = [];
-                    if ($product->product_types) {
-                        $ids = [];
-                        foreach ($product->product_types as $related_product_type) {
-                            array_push($ids, $related_product_type->id);
-                        }
-                        if (!in_array($product_type_id, $ids)) {
-                            array_push($ids, $product_type_id);
-                        }
-                        $completion_entities['product_types']['_ids'] = $ids;
-                    } else {
-                        $ids = [];
-                        array_push($ids, $product_type_id);
-                        $completion_entities['product_types']['_ids'] = $ids;
-                    }
-                    // don't remove the owned completions
-                    $completion_entities['completions']['_ids'] = [];
-                    if ($product->completions) {
-                        $ids = [];
-                        foreach ($product->completions as $related_completion) {
-                            array_push($ids, $related_completion->id);
-                        }
-                        $completion_entities['completions']['_ids'] = $ids;
-                    }
                     // decode localized aspects, make categories as an array, and unset unneccessary
                     $readable_product = $this->beautify_product($product);
                     $completion_entities['completion_columns'] = []; //declare empty completions_enitities
                     // get attributes compared to recommended atts
                     $selected_attributes = [];
-                    $selected_attributes_combinations = [];
                     foreach ($readable_product['attributes'] as $attribute) {
                         $result = explode(' : ', $attribute);
                         $key = $result[0];
@@ -136,6 +110,7 @@ class ProductsController extends AppController
                         $selected_attributes = $this->merge_two_keys('Geschlecht', 'Abteilung', $selected_attributes);
                     }
                     // get combinations min 1 and max 3
+                    $selected_attributes_combinations = [];
                     if ($selected_attributes) {
                         $combinations = $this->combinations($selected_attributes, 1, 3);
                         foreach ($combinations as $combination) {
@@ -155,6 +130,31 @@ class ProductsController extends AppController
                     //input completion from only product type itself
                     $completion_columns = ['title'=>$product_type_title, 'type'=>"product type"];
                     array_push($completion_entities['completion_columns'], $completion_columns);
+                    // keep the owned product types
+                    $completion_entities['product_types']['_ids'] = [];
+                    if ($product->product_types) {
+                        $ids = [];
+                        foreach ($product->product_types as $related_product_type) {
+                            array_push($ids, $related_product_type->id);
+                        }
+                        if (!in_array($product_type_id, $ids)) {
+                            array_push($ids, $product_type_id);
+                        }
+                        $completion_entities['product_types']['_ids'] = $ids;
+                    } else {
+                        $ids = [];
+                        array_push($ids, $product_type_id);
+                        $completion_entities['product_types']['_ids'] = $ids;
+                    }
+                    // keep the owned completions
+                    $completion_entities['completions']['_ids'] = [];
+                    if ($product->completions) {
+                        $ids = [];
+                        foreach ($product->completions as $related_completion) {
+                            array_push($ids, $related_completion->id);
+                        }
+                        $completion_entities['completions']['_ids'] = $ids;
+                    }
                     $product = $this->Products->patchEntity($product, $completion_entities);
                     if ($this->Products->save($product)) {
                         $message = 'The products have been saved.';
@@ -321,13 +321,10 @@ class ProductsController extends AppController
                             foreach ($this->array_cartesian_product($p) as $result) {
                                 $selected_attributes_combinations = join(' ', $result);
                                 $end_combination = mb_strtolower($product_type . ' ' .$selected_attributes_combinations);
-                                array_push($titles, $end_combination);
+                                $completion_columns = ['title'=>$end_combination, 'type'=>"attributes"];
+                                array_push($completion_entities['completion_columns'], $completion_columns);
                             }
                         }
-                    }
-                    foreach ($titles as $title) {
-                        $completion_columns = ['title'=>$title, 'type'=>"attributes"];
-                        array_push($completion_entities['completion_columns'], $completion_columns);
                     }
                 }
                 $completion_columns = ['title'=>$product_type, 'type'=>"product type"];
@@ -372,7 +369,7 @@ class ProductsController extends AppController
     {
         $localized_aspects = explode(';', $product['localized_aspects']);
         $inferred_localized_aspects = explode(';', $product['inferred_localized_aspects']);
-        $attributes = $this->decode_localized_aspects($inferred_localized_aspects);
+        $attributes = $this->decode_localized_aspects($inferred_localized_aspects, ':');
         $product['attributes'] = $this->neglect($attributes, 'attributes');
         //remove unneccessary
         unset($product['inferred_localized_aspects']);
@@ -382,14 +379,14 @@ class ProductsController extends AppController
     /**
      * Decode localaized_aspects to readable attributes
      */
-    protected function decode_localized_aspects($localized_aspects)
+    protected function decode_localized_aspects($localized_aspects, $separator)
     {
         $attributes = [];
         $index = 0;
         foreach ($localized_aspects as $l_a) {
-            $result = explode(':', $l_a);
+            $result = explode($separator, $l_a);
             if ($result[0] && $result[1]) {
-                $attributes[$index] = base64_decode($result[0]) . ' : ' . base64_decode($result[1]);
+                $attributes[$index] = base64_decode(trim($result[0])) . ' : ' . base64_decode(trim($result[1]));
             }
             $index++;
         }
@@ -409,9 +406,21 @@ class ProductsController extends AppController
         return $result;
     }
 
+    
+    protected function merge_two_keys($mainKey, $mergedKey, $array)
+    {
+        if (!empty($array[$mergedKey]) && !empty($array[$mergedKey])) {
+            foreach ($array[$mergedKey] as $value) {
+                $array[$mainKey][] = $value;
+            }
+        }
+        unset($array[$mergedKey]);
+        return $array;
+    }
+    
     /**
      * do cartesian formula
-     * https://stackoverflow.com/a/8567479
+     * src: https://stackoverflow.com/a/8567479
      */
     protected function array_cartesian_product($arrays)
     {
@@ -438,21 +447,9 @@ class ProductsController extends AppController
         return $result;
     }
 
-    protected function merge_two_keys($mainKey, $mergedKey, $array)
-    {
-        if (!empty($array[$mergedKey]) && !empty($array[$mergedKey])) {
-            foreach ($array[$mergedKey] as $value) {
-                $array[$mainKey][] = $value;
-            }
-        }
-        unset($array[$mergedKey]);
-        return $array;
-    }
-
-
     /**
      * do permuation algorithm
-     * https://stackoverflow.com/a/12749950
+     * src: https://stackoverflow.com/a/12749950
      */
     protected function permutations($InArray, &$ReturnArray = array(), $InProcessedArray = array())
     {
@@ -470,7 +467,7 @@ class ProductsController extends AppController
 
     /**
      * do combination algorithm
-     * https://stackoverflow.com/a/65061503
+     * src: https://stackoverflow.com/a/65061503
      */
     protected function combinations($values, $minLength = 1, $maxLength = 2000)
     {
@@ -481,7 +478,6 @@ class ProductsController extends AppController
         for ($i = 0; $i < $size; $i ++) {
             $b = sprintf("%0" . $count . "b", $i);
             $out = [];
-
             for ($j = 0; $j < $count; $j ++) {
                 if ($b[$j] == '1') {
                     $out[$keys[$j]] = $values[$keys[$j]];
