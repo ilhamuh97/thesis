@@ -38,22 +38,16 @@
             <tr>
                 <th scope="col"><?= __('Id') ?></th>
                 <th scope="col"><?= __('Title') ?></th>
-                <th scope="col"><?= __('Brand') ?></th>
                 <th scope="col"><?= __('Created') ?></th>
                 <th scope="col"><?= __('Modified') ?></th>
-                <th scope="col"><?= __('Category') ?></th>
-                <th scope="col"><?= __('Localized Aspects') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
             <?php foreach ($productType->products as $product): ?>
             <tr>
                 <td><?= h($product->id) ?></td>
                 <td><?= h($product->title) ?></td>
-                <td><?= h($product->brand) ?></td>
                 <td><?= h($product->created) ?></td>
                 <td><?= h($product->modified) ?></td>
-                <td><?= h($product->category) ?></td>
-                <td><?= h($product->localized_aspects) ?></td>
                 <?= $this->element('Actions/actionsUnitProduct', [
                     'typeId' => $product->id,
                     'controllerName' => 'Products'

@@ -31,14 +31,11 @@ class Product extends Entity
      */
     protected $_accessible = [
         'title' => true,
-        'category_flow' => true,
-        'category_id' => true,
         'inferred_localized_aspects' => true,
         'created' => true,
         'modified' => true,
-        'category' => true,
         'completions' => true,
-        'completion_columns' => true,
+        'completion_title' => true,
         'product_types' => true,
         'product_type_titles' => true,
     ];

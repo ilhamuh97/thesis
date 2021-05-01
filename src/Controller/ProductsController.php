@@ -84,20 +84,28 @@ class ProductsController extends AppController
                 foreach ($products as $product) {
                     // decode localized aspects, make categories as an array, and unset unneccessary
                     $readable_product = $this->beautify_product($product);
-                    $completion_entities['completion_columns'] = []; //declare empty completions_enitities
+                    $completion_entities['completion_title'] = []; //declare empty completions_enitities
                     // get attributes compared to recommended atts
                     $selected_attributes = [];
+                    $attribute_values_divider = [',', '/'];
                     foreach ($readable_product['attributes'] as $attribute) {
                         $result = explode(' : ', $attribute);
                         $key = $result[0];
                         $value = $result[1];
+                        $divider_found = false;
                         if (in_array(mb_strtolower($key), $recommended_attributes)) {
-                            if (str_contains($value, '/')) {
-                                $newArray = explode('/', $value);
-                                foreach ($newArray as $splittedAttribute) {
-                                    $selected_attributes[$key][] = trim($splittedAttribute);
+                            //divide multiple values based on predefined attributes divider
+                            foreach ($attribute_values_divider as $divider) {
+                                if (str_contains($value, $divider)) {
+                                    $divider_found = true;
+                                    $newValues = explode(strval($divider), $value);
+                                    foreach ($newValues as $splittedValues) {
+                                        $selected_attributes[$key][] = trim($splittedValues);
+                                    }
+                                    break;
                                 }
-                            } else {
+                            }
+                            if (!$divider_found) {
                                 $selected_attributes[$key] = array($value);
                             }
                         }
@@ -121,15 +129,13 @@ class ProductsController extends AppController
                                     $selected_attributes_combinations = join(' ', $result);
                                     // remove multiple whitespaces, str to lower, and remove whitescpace before and after sentence
                                     $end_combination = trim(preg_replace('/\s+/', ' ', mb_strtolower($product_type_title . ' ' .$selected_attributes_combinations)));
-                                    $completion_columns = ['title'=>$end_combination, 'type'=>"attributes"];
-                                    array_push($completion_entities['completion_columns'], $completion_columns);
+                                    array_push($completion_entities['completion_title'], $end_combination);
                                 }
                             }
                         }
                     }
                     //input completion from only product type itself
-                    $completion_columns = ['title'=>$product_type_title, 'type'=>"product type"];
-                    array_push($completion_entities['completion_columns'], $completion_columns);
+                    array_push($completion_entities['completion_title'], $product_type_title);
                     // keep the owned product types
                     $completion_entities['product_types']['_ids'] = [];
                     if ($product->product_types) {
@@ -161,14 +167,6 @@ class ProductsController extends AppController
                     } else {
                         $saved = false;
                         $idsError[] = $product->id;
-                    }
-                    if ($product->id == 1352) {
-                        if ($this->Products->save($product)) {
-                            $message = 'The products have been saved.';
-                        } else {
-                            $saved = false;
-                            $idsError[] = $product->id;
-                        }
                     }
                 }
             }
@@ -280,7 +278,8 @@ class ProductsController extends AppController
             'contain' => ['Completions', 'Product_types'],
         ]);
         $readable_product = $this->beautify_product($this->Products->get($id));
-        $completion_entities['completion_columns'] = [];
+        $completion_entities['completion_title'] = [];
+        $attribute_values_divider = [',', '/'];
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $data['product_type'] = explode(',', $data['product_type']);
@@ -299,12 +298,21 @@ class ProductsController extends AppController
                         $key = trim($result[0]);
                         $value = mb_strtolower(trim($result[1]));
                         // if multiple values in one key
-                        if (str_contains($value, '/')) {
-                            $newValues = explode('/', $value);
-                            foreach ($newValues as $splittedValues) {
-                                $selected_attributes[$key][] = trim($splittedValues);
+                        $divider_found = false;
+                        //divide multiple values based on predefined attributes divider
+                        foreach ($attribute_values_divider as $divider) {
+                            $this->console_log($divider);
+                            if (str_contains($value, $divider)) {
+                                $divider_found = true;
+                                $newValues = explode(strval($divider), $value);
+                                $this->console_log($newValues);
+                                foreach ($newValues as $splittedValues) {
+                                    $selected_attributes[$key][] = trim($splittedValues);
+                                }
+                                break;
                             }
-                        } else {
+                        }
+                        if (!$divider_found) {
                             $selected_attributes[$key] = array($value);
                         }
                     }
@@ -321,14 +329,12 @@ class ProductsController extends AppController
                             foreach ($this->array_cartesian_product($p) as $result) {
                                 $selected_attributes_combinations = join(' ', $result);
                                 $end_combination = mb_strtolower($product_type . ' ' .$selected_attributes_combinations);
-                                $completion_columns = ['title'=>$end_combination, 'type'=>"attributes"];
-                                array_push($completion_entities['completion_columns'], $completion_columns);
+                                array_push($completion_entities['completion_title'], $end_combination);
                             }
                         }
                     }
                 }
-                $completion_columns = ['title'=>$product_type, 'type'=>"product type"];
-                array_push($completion_entities['completion_columns'], $completion_columns);
+                array_push($completion_entities['completion_title'], $product_type);
             }
             // keep the owned product types
             $completion_entities['product_types']['_ids'] = [];

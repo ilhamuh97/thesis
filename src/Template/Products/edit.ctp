@@ -22,8 +22,6 @@
         <legend><?= __('Edit Product') ?></legend>
         <?php
             echo $this->Form->control('title');
-            echo $this->Form->control('category_flow');
-            echo $this->Form->control('category_id');
             echo $this->Form->control('inferred_localized_aspects');
             echo $this->Form->control('product_types._ids', ['options' => $product_types]);
             echo $this->Form->control('completions._ids', ['options' => $completions]);

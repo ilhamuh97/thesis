@@ -26,14 +26,6 @@
             <td><?= h($product->title) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Category Flow') ?></th>
-            <td><?= h($product->category_flow) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Category Id') ?></th>
-            <td><?= h($product->category_id) ?></td>
-        </tr>
-        <tr>
             <th scope="row"><?= __('Inferred Localized Aspects') ?></th>
             <td><?= h($product->inferred_localized_aspects) ?></td>
         </tr>
@@ -53,7 +45,6 @@
             <tr>
                 <th scope="col"><?= __('Id') ?></th>
                 <th scope="col"><?= __('Title') ?></th>
-                <th scope="col"><?= __('Type') ?></th>
                 <th scope="col"><?= __('Created') ?></th>
                 <th scope="col"><?= __('Modified') ?></th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
@@ -62,7 +53,6 @@
             <tr>
                 <td><?= h($completions->id) ?></td>
                 <td><?= h($completions->title) ?></td>
-                <td><?= h($completions->type) ?></td>
                 <td><?= h($completions->created) ?></td>
                 <td><?= h($completions->modified) ?></td>
                 <?= $this->element('Actions/actionsUnitDefault', [

@@ -29,8 +29,6 @@
             <tr>
                 <th scope="col"><?= $this->Paginator->sort('id') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('title') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('category_flow') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('category_id') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('inferred localized_aspects') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('created') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('modified') ?></th>
@@ -42,8 +40,6 @@
             <tr>
                 <td><?= $this->Number->format($product->id) ?></td>
                 <td><?= h($product->title) ?></td>
-                <td><?= h($product->category_flow) ?></td>
-                <td><?= h($product->category_id) ?></td>
                 <td><?= $this->Text->truncate($product->inferred_localized_aspects, 100, ['ellipsis' => '...']); ?></td>
                 <td><?= h($product->created) ?></td>
                 <td><?= h($product->modified) ?></td>

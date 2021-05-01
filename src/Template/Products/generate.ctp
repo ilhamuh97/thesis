@@ -26,14 +26,6 @@
             <td><?= h($readable_product->title) ?></td>
         </tr>
         <tr>
-            <th scope="row"><?= __('Category Flow') ?></th>
-            <td><?= h($readable_product->category_flow) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Category Id') ?></th>
-            <td><?= h($readable_product->category_id) ?></td>
-        </tr>
-        <tr>
             <th scope="row"><?= __('Created') ?></th>
             <td><?= h($readable_product->created) ?></td>
         </tr>

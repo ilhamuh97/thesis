@@ -22,7 +22,6 @@
         <legend><?= __('Edit Completion') ?></legend>
         <?php
             echo $this->Form->control('title');
-            echo $this->Form->control('type');
             echo $this->Form->control('products._ids', ['options' => $products]);
         ?>
     </fieldset>

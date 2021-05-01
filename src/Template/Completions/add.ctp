@@ -16,7 +16,6 @@
         <legend><?= __('Add Completion') ?></legend>
         <?php
             echo $this->Form->control('title');
-            echo $this->Form->control('type');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>
