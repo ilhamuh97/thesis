@@ -291,7 +291,6 @@ class ProductsController extends AppController
                 if ($data['selected_attributes']['_ids']) {
                     // attribute + brand
                     $selected_attributes = [];
-                    $titles = [];
                     // trim selected attributes
                     foreach ($data['selected_attributes']['_ids'] as $attribute_id) {
                         $result = explode(':', $readable_product['attributes'][$attribute_id]);
@@ -301,11 +300,9 @@ class ProductsController extends AppController
                         $divider_found = false;
                         //divide multiple values based on predefined attributes divider
                         foreach ($attribute_values_divider as $divider) {
-                            $this->console_log($divider);
                             if (str_contains($value, $divider)) {
                                 $divider_found = true;
                                 $newValues = explode(strval($divider), $value);
-                                $this->console_log($newValues);
                                 foreach ($newValues as $splittedValues) {
                                     $selected_attributes[$key][] = trim($splittedValues);
                                 }
