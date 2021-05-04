@@ -285,9 +285,9 @@ class ProductsController extends AppController
             $data['product_type'] = explode(',', $data['product_type']);
             foreach ($data['product_type'] as $index => $product_type) {
                 // remove all non alphabet numeric type
+                $data['product_type'][$index] = trim($product_type);
                 $product_type = preg_replace("/[^A-Za-z0-9öÖäAüÜß \_]/", '', $product_type);
                 $product_type = mb_strtolower(trim($product_type));
-                $data['product_type'][$index] = trim($product_type);
                 if ($data['selected_attributes']['_ids']) {
                     // attribute + brand
                     $selected_attributes = [];
